@@ -1,16 +1,19 @@
 <template>
   <div class="h-screen relative">
-    <div id="map" class="h-full z-[1]"></div>
+    <MapFeatures @getGeolocation="getGeolocation" :coords="coords" :fetchCoords="fetchCoords" />
+    <div id="map" class="h-full z-[1]">
+    </div>
   </div>
 </template>
 
 <script>
-import leaflet from 'leaflet';
-import { onMounted, ref } from 'vue';
+import leaflet from "leaflet";
+import { onMounted, ref } from "vue";
+import MapFeatures from "@/components/MapFeatures.vue";
 
 export default {
   name: 'HomeView',
-  components: {},
+  components: { MapFeatures },
   setup() {
     let map;
 
@@ -31,6 +34,12 @@ export default {
     const geoMarker = ref(null);
 
     const getGeolocation = () => {
+      if (coords.value) {
+        coords.value = null;
+        sessionStorage.removeItem("coords");
+        map.removeLayer(geoMarker.value);
+        return;
+      }
       // controllo della sessione storage per le coordinate.
       if (sessionStorage.getItem("coords")) {
         coords.value = JSON.parse(sessionStorage.getItem("coords"));
@@ -80,7 +89,7 @@ export default {
       console.log(err);
     };
 
-    return { coords, geoMarker };
+    return { coords, fetchCoords, geoMarker, getGeolocation };
   }
 }
 </script>
