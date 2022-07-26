@@ -1,5 +1,6 @@
 <template>
   <div class="h-screen relative">
+    <GeoErrorModal @closeGeoError="closeGeoError" v-if="geoError" :geoErrorMsg="geoErrorMsg" />
     <MapFeatures @getGeolocation="getGeolocation" :coords="coords" :fetchCoords="fetchCoords" />
     <div id="map" class="h-full z-[1]">
     </div>
@@ -9,11 +10,12 @@
 <script>
 import leaflet from "leaflet";
 import { onMounted, ref } from "vue";
+import GeoErrorModal from "@/components/GeoErrorModal.vue";
 import MapFeatures from "@/components/MapFeatures.vue";
 
 export default {
   name: 'HomeView',
-  components: { MapFeatures },
+  components: { GeoErrorModal, MapFeatures },
   setup() {
     let map;
 
@@ -32,6 +34,8 @@ export default {
     const coords = ref(null);
     const fetchCoords = ref(null);
     const geoMarker = ref(null);
+    const geoError = ref(null);
+    const geoErrorMsg = ref(null);
 
     const getGeolocation = () => {
       if (coords.value) {
@@ -86,10 +90,17 @@ export default {
     };
 
     const getLocError = (err) => {
-      console.log(err);
+      fetchCoords.value = null;
+      geoError.value = true;
+      geoErrorMsg.value = err.message;
     };
 
-    return { coords, fetchCoords, geoMarker, getGeolocation };
+    const closeGeoError = () => {
+      geoError.value = null;
+      geoErrorMsg.value = null;
+    };
+
+    return { coords, fetchCoords, geoMarker, geoError, geoErrorMsg, closeGeoError, getGeolocation };
   }
 }
 </script>
