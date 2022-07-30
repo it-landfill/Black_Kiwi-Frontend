@@ -38,9 +38,12 @@ export default {
     const geoErrorMsg = ref(null);
 
     const getGeolocation = () => {
+
       if (coords.value) {
         coords.value = null;
         sessionStorage.removeItem("coords");
+        // map.removeLayer(geoMarker.value); può non funzionare correttamente.
+        // [Warning] listener not found - f_off - Events.js:180
         map.removeLayer(geoMarker.value);
         return;
       }
