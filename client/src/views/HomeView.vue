@@ -1,6 +1,6 @@
 <template>
   <div class="h-screen relative">
-    <GeoErrorModal @closeGeoError="closeGeoError" v-if="geoError" :geoErrorMsg="geoErrorMsg" />
+    <GeoErrorModal @closeGeoError="closeGeoError" :geoErrorMsg="geoErrorMsg" />
     <MapFeatures @getGeolocation="getGeolocation" :coords="coords" :fetchCoords="fetchCoords" />
     <div id="map" class="h-full z-[1]">
     </div>
