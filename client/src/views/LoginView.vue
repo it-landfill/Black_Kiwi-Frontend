@@ -1,5 +1,6 @@
 <template>
     <div class="h-screen relative">
+        <LoginErrorModal @closeLoginError="closeLoginError" v-if="loginError" :loginErrorMsg="loginErrorMsg"  />
         <LoginModal />
         <div id="map" class="h-full z-[1]">
         </div>
@@ -10,10 +11,11 @@
 import leaflet from "leaflet";
 import { onMounted, ref } from "vue";
 import LoginModal from "@/components/LoginModal.vue";
+import LoginErrorModal from "@/components/LoginErrorModal.vue";
 
 export default {
     name: 'LoginView',
-    components: { LoginModal },
+    components: { LoginModal, LoginErrorModal },
     setup() {
         let map;
 
@@ -27,22 +29,24 @@ export default {
             }).addTo(map);
         })
 
-        const geoError = ref(null);
-        const geoErrorMsg = ref(null);
+        // TODO: Implementare la ricezione di errori dal server per il login.
+
+        const loginError = ref(true);
+        const loginErrorMsg = ref(null);
 
         /* 
-            const getLocError = (err) => {
+            const getLoginError = (err) => {
                 geoError.value = true;
                 geoErrorMsg.value = err.message;
             }; 
         */
 
-        const closeGeoError = () => {
-            geoError.value = null;
-            geoErrorMsg.value = null;
+        const closeLoginError = () => {
+            loginError.value = null;
+            loginErrorMsg.value = null;
         };
 
-        return { geoError, geoErrorMsg, closeGeoError };
+        return { loginError, loginErrorMsg, closeLoginError };
     }
 }
 </script>
