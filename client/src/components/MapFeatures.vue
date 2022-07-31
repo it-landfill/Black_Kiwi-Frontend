@@ -1,6 +1,6 @@
 <template>
     <div
-        class="w-full md: max-w-[400px] min-h-[90%] absolute md:top-[50px] md:left-[70px] z-[2] flex flex-col gap-4 px-6 py-8 md:px-0 md:py-0 bg-trasparent">
+        class="w-full md: max-w-[400px] min-h-[90%] absolute md:top-[50px] md:left-[70px] z-[4] flex flex-col gap-4 px-6 py-8 md:px-0 md:py-0 bg-trasparent">
 
         <div class="relative w-full">
             <div class="min-h-[200px] px-4 py-4 sm:px-6 bg-white rounded-md shadow-lg">
@@ -132,7 +132,7 @@
     </div>
 
     <div
-        class="w-full md: max-w-[350px] min-h-[90%] absolute md:top-[50px] md:right-[70px] z-[2] flex flex-col gap-4 px-6 py-8 md:px-0 md:py-0 bg-trasparent">
+        class="w-full md: max-w-[350px] min-h-[90%] absolute md:top-[50px] md:right-[70px] z-[4] flex flex-col gap-4 px-6 py-8 md:px-0 md:py-0 bg-trasparent">
 
         <div class="absolute bottom-0 left-0 w-full">
             <div class="h-auto px-4 py-2 bg-white rounded-md shadow-lg">

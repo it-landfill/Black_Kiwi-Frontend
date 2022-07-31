@@ -1,5 +1,6 @@
 <template>
   <div class="h-screen relative">
+    <ModifyPOIModal />
     <GeoErrorModal @closeGeoError="closeGeoError" v-if="geoError" :geoErrorMsg="geoErrorMsg" />
     <MapFeatures @getGeolocation="getGeolocation" :coords="coords" :fetchCoords="fetchCoords" />
     <div id="map" class="h-full z-[1]">
@@ -12,10 +13,11 @@ import leaflet from "leaflet";
 import { onMounted, ref } from "vue";
 import GeoErrorModal from "@/components/GeoErrorModal.vue";
 import MapFeatures from "@/components/MapFeatures.vue";
+import ModifyPOIModal from "@/components/ModifyPOIModal.vue";
 
 export default {
   name: 'HomeView',
-  components: { GeoErrorModal, MapFeatures },
+  components: { ModifyPOIModal, GeoErrorModal, MapFeatures },
   setup() {
     let map;
 
