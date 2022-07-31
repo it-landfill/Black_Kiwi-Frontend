@@ -1,7 +1,7 @@
 <template>
-    <div class="relative z-10">
-        <div class="fixed inset-0 bg-black/50 transition-opacity"></div>
-        <div class="fixed z-10 inset-0 overflow-y-auto">
+    <div class="relative z-[8]">
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
+        <div class="fixed z-[8] inset-0 overflow-y-auto">
             <div class="flex items-end sm:items-center justify-center min-h-full text-center sm:p-0">
                 <div
                     class=" bg-white rounded-lg text-left overflow-hidden shadow-xl transform sm:my-8 sm:max-w-lg sm:w-full">
@@ -21,7 +21,7 @@
                                         Email address
                                     </label>
                                     <input id="email-address" name="email" type="email" autocomplete="email" required
-                                        class="appearance-none rounded-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-t-md focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-10 sm:text-sm"
+                                        class="appearance-none rounded-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-t-md focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
                                         placeholder="Email address">
                                 </div>
                                 <div>
@@ -30,7 +30,7 @@
                                     </label>
                                     <input id="password" name="password" type="password" autocomplete="current-password"
                                         required
-                                        class="appearance-none rounded-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-b-md focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-10 sm:text-sm"
+                                        class="appearance-none rounded-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-b-md focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
                                         placeholder="Password">
                                 </div>
                             </div>
