@@ -7,7 +7,8 @@
                     class=" bg-white rounded-lg text-left overflow-hidden shadow-xl transform sm:my-8 sm:max-w-lg sm:w-full">
                     <div class="px-4 pt-5 pb-5">
                         <div>
-                            <img class="mx-auto w-[120px] h-auto" src="../../src/images/black_kiwi.svg" alt="Workflow">
+                            <img class="mx-auto w-[120px] h-auto" src="../../src/assets/images/black_kiwi.svg"
+                                alt="Workflow">
                             <h2 class="mt-6 text-center text-3xl font-extrabold text-slate-900">
                                 Sign in to your account
                             </h2>
