@@ -57,7 +57,7 @@
 
                             <div>
                                 <button type="submit"
-                                    class="relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md bg-slate-300 text-slate-900  hover:bg-slate-900 hover:text-white ">
+                                    class="relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md bg-slate-300 text-slate-900  hover:bg-slate-900 hover:text-white">
                                     Sign in
                                 </button>
                             </div>
