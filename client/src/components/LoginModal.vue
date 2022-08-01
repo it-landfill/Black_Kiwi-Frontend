@@ -14,7 +14,7 @@
                             </h2>
                         </div>
 
-                        <form class="mt-8 space-y-6" action="#" method="POST">
+                        <form class="mt-8 space-y-6" @submit.prevent="onSubmit">
                             <input type="hidden" name="remember" value="true">
                             <div class="rounded-md shadow-sm -space-y-px">
                                 <div>
@@ -23,7 +23,8 @@
                                     </label>
                                     <input id="email-address" name="email" type="email" autocomplete="email" required
                                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-t-md focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
-                                        placeholder="Email address">
+                                        placeholder="Email address"
+										v-model="formData.mail">
                                 </div>
                                 <div>
                                     <label for="password" class="sr-only">
@@ -32,7 +33,8 @@
                                     <input id="password" name="password" type="password" autocomplete="current-password"
                                         required
                                         class="appearance-none rounded-none relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-b-md focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
-                                        placeholder="Password">
+                                        placeholder="Password"
+										v-model="formData.password">
                                 </div>
                             </div>
 
@@ -70,5 +72,20 @@
 <script>
 export default {
     props: [],
+	data() {
+		return {
+			formData: {
+				mail: '',
+				password: ','
+			},
+		}
+	},
+	methods: {
+		onSubmit() {
+			console.log("Submitted form")
+			console.log(this.formData)
+			this.$router.push("home")
+		}
+	}
 }
 </script>
