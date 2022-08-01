@@ -1,6 +1,6 @@
 <template>
   <div class="h-screen relative">
-    <ModifyPOIModal />
+    <ModifyPOIModal v-if="geoModifyRequest" />
     <GeoErrorModal @closeGeoError="closeGeoError" v-if="geoError" :geoErrorMsg="geoErrorMsg" />
     <MapFeatures @getGeolocation="getGeolocation" :coords="coords" :fetchCoords="fetchCoords" />
     <div id="map" class="h-full z-[1]">
@@ -38,6 +38,7 @@ export default {
     const geoMarker = ref(null);
     const geoError = ref(null);
     const geoErrorMsg = ref(null);
+    const geoModifyRequest = ref(null);
 
     const getGeolocation = () => {
 
@@ -91,7 +92,6 @@ export default {
 
       // set map view to current location
       map.setView([coords.lat, coords.lng], 10);
-
     };
 
     const getLocError = (err) => {
@@ -105,7 +105,7 @@ export default {
       geoErrorMsg.value = null;
     };
 
-    return { coords, fetchCoords, geoMarker, geoError, geoErrorMsg, closeGeoError, getGeolocation };
+    return { coords, fetchCoords, geoMarker, geoError, geoErrorMsg, geoModifyRequest, closeGeoError, getGeolocation };
   }
 }
 </script>

@@ -76,7 +76,7 @@ export default {
 		return {
 			formData: {
 				mail: '',
-				password: ','
+				password: ''
 			},
 		}
 	},

@@ -31,7 +31,7 @@ export default {
 
         // TODO: Implementare la ricezione di errori dal server per il login.
 
-        const loginError = ref(true);
+        const loginError = ref(null);
         const loginErrorMsg = ref(null);
 
         /* 
