@@ -48,7 +48,7 @@
                                 </div>
 
                                 <div class="text-sm">
-                                    <a href="#"
+                                    <a href="404"
                                         class="font-medium text-slate-600 hover:text-slate-900 hover:line-through">
                                         Forgot your password?
                                     </a>

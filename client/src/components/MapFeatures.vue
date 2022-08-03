@@ -87,9 +87,9 @@
                 <div class="space-y-2 mx-5 pt-3 flex">
                     <div class="flex items-center justify-between gap-4">
                         <div class="px-4 bg-white flex align-middle items-center shadow-md rounded-md min-h-[45px] max-w-[45px]"
-                            :class="{ 'bg-slate-600': coords }" @click="$emit('getGeolocation')">
+                            :class="{ 'bg-slate-600': coordsMapFeatures }" @click="getGeolocationMapFeatures">
                             <i class="fas fa-location-arrow text-state-600 text-[18px]"
-                                :class="{ 'text-white': coords, 'animate-pulse': fetchCoords }"></i>
+                                :class="{ 'text-white': coordsMapFeatures, 'animate-pulse': fetchCoordsMapFeatures }"></i>
                         </div>
                         <p>
                             Posizione attuale dell'utente.
@@ -102,9 +102,9 @@
                 <div class="space-y-2 mx-5 pt-3 flex">
                     <div class="flex items-center justify-between gap-4">
                         <div class="px-3 bg-white flex items-center shadow-md rounded-md min-h-[45px] max-w-[45px]"
-                            :class="{ 'bg-slate-600': coords }" @click="$emit('getGeolocation')">
+                            :class="{ 'bg-slate-600': coordsMapFeatures }" @click="Bottone2">
                             <i class="fa-solid fa-location-crosshairs text-state-600 text-[20px]"
-                                :class="{ 'text-white': coords, 'animate-pulse': fetchCoords }" />
+                                :class="{ 'text-white': coordsMapFeatures, 'animate-pulse': fetchCoordsMapFeatures }" />
                         </div>
                         <p>
                             Visualizzazione heat-map.
@@ -116,9 +116,9 @@
                 <div class="space-y-2 mx-5 pt-3 flex">
                     <div class="flex items-center justify-between gap-4">
                         <div class="px-3 bg-white flex items-center shadow-md rounded-md min-h-[45px] max-w-[45px]"
-                            :class="{ 'bg-slate-600': coords }" @click="$emit('getGeolocation')">
+                            :class="{ 'bg-slate-600': coordsMapFeatures }" @click="Bottone3">
                             <i class="fa-solid fa-street-view text-state-600 text-[20px]"
-                                :class="{ 'text-white': coords, 'animate-pulse': fetchCoords }"></i>
+                                :class="{ 'text-white': coordsMapFeatures, 'animate-pulse': fetchCoordsMapFeatures }"></i>
                         </div>
                         <p>
                             Posizione utenti aderente al servizio.
@@ -175,7 +175,7 @@
 import { ref } from "vue";
 import axios from "axios";
 export default {
-    props: ["coords", "fetchCoords"],
+    props: ["coordsMapFeatures", "fetchCoordsMapFeatures"],
     setup(props) {
         const searchQuery = ref(null);
         const searchData = ref(null);
@@ -190,7 +190,7 @@ export default {
                         fuzzyMatch: true,
                         language: "en",
                         limit: 10,
-                        proximity: props.coords ? `${props.coords.lng}, ${props.coords.lat}` : "0,0",
+                        proximity: props.coordsMapFeatures ? `${props.coordsMapFeatures.lng}, ${props.coordsMapFeatures.lat}` : "0,0",
                     });
                     const getData = await axios.get(`http://localhost:8080/api/search/${searchQuery.value}?${params}`);
                     searchData.value = getData.data.features;
@@ -201,5 +201,10 @@ export default {
 
         return { searchQuery, searchData, queryTimeout, search };
     },
+    methods: {
+          getGeolocationMapFeatures() {
+              this.$emit("getGeolocationMapFeatures")
+          }
+      },
 };
 </script>

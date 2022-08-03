@@ -1,47 +1,98 @@
+<!-- 
+  Ogni file .vue contiene nel top-level il blocco <template>.
+  Il contenuto del blocco <template> viene estratto e passato al @vue/compiler-dom 
+  che precompila la componente alla visualizzazione.
+-->
 <template>
   <div class="h-screen relative">
+    <!-- Definizione delle caratteristiche grafiche della mappa. -->
+    <div id="baseMap" class="h-full z-[1]" />
+    <!-- 
+      Richiamo alla componente "MapFeatures". 
+      Modificatori applicati:
+        - v-on (alias @) ricollega un event listener all'elemento component (in questo caso MapFeatures).
+          Una volta aggiunto l'event listener, se la componente invia un evento (in questo caso "getGeolocationMapFeatur") 
+          la componente padre richiama l'handler definito (in questo caso "getGeolocation")
+          https://vuejs.org/api/built-in-directives.html#v-on
+
+        - v-bind (alias :) collegamento tra uno o più attributi.
+          https://vuejs.org/api/built-in-directives.html#v-bind
+    -->
+    <MapFeatures @getGeolocationMapFeatures="getGeolocation" :coordsMapFeatures="coords"
+      :fetchCoordsMapFeatures="fetchCoords" />
+    <!-- 
+      Richiamo alla componente "ModifyPOIModal". 
+        - v-if render condizionato dallo stato di un attributo.
+          https://vuejs.org/api/built-in-directives.html#v-if
+    -->
     <ModifyPOIModal v-if="geoModifyRequest" />
+    <!-- 
+      Richiamo alla componente "GeoErrorModal". 
+    -->
     <GeoErrorModal @closeGeoError="closeGeoError" v-if="geoError" :geoErrorMsg="geoErrorMsg" />
-    <MapFeatures @getGeolocation="getGeolocation" :coords="coords" :fetchCoords="fetchCoords" />
-    <div id="map" class="h-full z-[1]">
-    </div>
   </div>
 </template>
 
+
 <script>
+// Import della libreria di leaflet in "HomeView"
 import leaflet from "leaflet";
+// Import delle funzioni onMounted e ref di vue in "HomeView"
 import { onMounted, ref } from "vue";
+// Import delle componenti richiamate nel blocco <template>
 import GeoErrorModal from "@/components/GeoErrorModal.vue";
 import MapFeatures from "@/components/MapFeatures.vue";
 import ModifyPOIModal from "@/components/ModifyPOIModal.vue";
 
 export default {
+  // Nominativo del component
   name: 'HomeView',
-  components: { ModifyPOIModal, GeoErrorModal, MapFeatures },
+  // Elenco dei components utilizzati
+  components: {
+    ModifyPOIModal,
+    GeoErrorModal,
+    MapFeatures
+  },
   setup() {
+    //  Dichiarazione della variabile map.
     let map;
+    // Dichiarazione delle variabili di geolocalizzazione.
+    const coords = ref(null);
+    const fetchCoords = ref(null);
+    // Dichiarazione delle variabili per la gestione degli errori.
+    const geoError = ref(null);
+    const geoErrorMsg = ref(null);
+    // Dichiarazione delle variabili per la gestione degla richiesta di modifica di un POI.
+    const geoModifyRequest = ref(null);
+    // Dichiarazione delle variabili i marker sulla mappa dei punti di interesse.
+    const geoMarker = ref(null);
 
+    /* 
+      onMounted, composition API che permette di eseguire una chiamata quando la componente in 
+      cui è utilizzata è caricata.
+      https://vuejs.org/api/composition-api-lifecycle.html#onmounted
+    */
     onMounted(() => {
-      // Inizializzazione della mappa di leaflet.
-      map = leaflet.map('map').setView([51.505, -0.09], 13);
+      // Inizializzazione della mappa di leaflet con i valori di default.
+      map = leaflet.map('baseMap').setView([51.505, -0.09], 15);
       // Aggiunta del livello per le tile della mappa
       leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
+        minZoom: 15,
+        detectRetina: true,
         attribution: '© OpenStreetMap'
       }).addTo(map);
-
+      // Richiamo della funzione per l'ottenimento dei dati di geolocalizzazione 
+      // del dispositivo.
       getGeolocation();
     })
 
-    const coords = ref(null);
-    const fetchCoords = ref(null);
-    const geoMarker = ref(null);
-    const geoError = ref(null);
-    const geoErrorMsg = ref(null);
-    const geoModifyRequest = ref(null);
 
+    /*
+      Funzione di geolocalizzazione del dispositivo.
+    */
     const getGeolocation = () => {
-
+      // Controllo dello stato di "coords" 
       if (coords.value) {
         coords.value = null;
         sessionStorage.removeItem("coords");

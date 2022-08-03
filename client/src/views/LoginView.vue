@@ -1,9 +1,11 @@
 <template>
     <div class="h-screen relative">
-        <LoginErrorModal @closeLoginError="closeLoginError" v-if="loginError" :loginErrorMsg="loginErrorMsg"  />
+        <!--  -->
+        <LoginErrorModal @closeLoginError="closeLoginError" v-if="loginError" :loginErrorMsg="loginErrorMsg" />
+        <!--  -->
         <LoginModal />
-        <div id="map" class="h-full z-[1]">
-        </div>
+        <!--  -->
+        <div id="map" class="h-full z-[1]" />
     </div>
 </template>
 
@@ -31,7 +33,7 @@ export default {
 
         // TODO: Implementare la ricezione di errori dal server per il login.
 
-        const loginError = ref(null);
+        const loginError = ref(true);
         const loginErrorMsg = ref(null);
 
         /* 
