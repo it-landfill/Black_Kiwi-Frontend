@@ -41,7 +41,7 @@ import leaflet from "leaflet";
 import { onMounted, ref } from "vue";
 // Import delle componenti richiamate nel blocco <template>
 import GeoErrorModal from "@/components/GeoErrorModal.vue";
-import MapFeatures from "@/components/MapFeatures.vue";
+import MapFeatures from "@/components/mapFeatureComponents/MapFeatures.vue";
 import ModifyPOIModal from "@/components/ModifyPOIModal.vue";
 
 export default {
@@ -86,7 +86,6 @@ export default {
       // del dispositivo.
       getGeolocation();
     })
-
 
     /*
       Funzione di geolocalizzazione del dispositivo.
