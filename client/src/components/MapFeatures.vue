@@ -176,6 +176,7 @@ import { ref } from "vue";
 import axios from "axios";
 export default {
     props: ["coordsMapFeatures", "fetchCoordsMapFeatures"],
+	emits: ["getGeolocationMapFeatures"],
     setup(props) {
         const searchQuery = ref(null);
         const searchData = ref(null);
