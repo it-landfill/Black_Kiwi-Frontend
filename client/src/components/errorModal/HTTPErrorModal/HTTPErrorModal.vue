@@ -2,7 +2,8 @@
     <section class="flex items-center h-full p-16 bg-white text-slate-900">
         <div class="container flex flex-col items-center justify-center px-5 mx-auto my-8">
             <div class="max-w-md text-center">
-                <img class="mx-auto w-[320px] h-auto" src="../../../src/assets/images/black_kiwi_error.svg" alt="Workflow">
+                <img class="mx-auto w-[320px] h-auto" src="../../../../src/assets/images/black_kiwi_error.svg"
+                    alt="Workflow">
                 <h2 class="mb-8 pt-8 font-extrabold text-5xl">
                     Error 404
                 </h2>

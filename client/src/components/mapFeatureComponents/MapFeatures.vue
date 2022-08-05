@@ -5,6 +5,7 @@
 <template>
     <!-- Components di sinistra -->
     <div class="w-full max-w-[375px] min-h-[90%] absolute z-[4] flex flex-col top-[50px] left-[70px] bg-trasparent">
+        <LoginErrorModal />
         <!-- 
             Richiamo alla componente "infoBlockComponent".
         -->
@@ -37,6 +38,7 @@ import infoBlockComponent from "./infoBlockComponent.vue";
 import searchBarComponent from "./searchBarComponent.vue";
 import toggleComponent from "./toggleComponent.vue";
 import legendComponent from "./legendComponent.vue";
+import LoginErrorModal from "@/components/errorModal/genericErrorModal/LoginErrorModal.vue";
 
 export default {
     // Nominativo del component
@@ -46,6 +48,7 @@ export default {
         searchBarComponent,
         toggleComponent,
         legendComponent,
+        LoginErrorModal,
     },
     props: ["coordsMapFeatures", "fetchCoordsMapFeatures"],
     emits: ["switchUserGeolocation"],

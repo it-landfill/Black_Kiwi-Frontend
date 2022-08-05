@@ -9,6 +9,7 @@
         <div class="h-auto px-4 py-4 bg-white rounded-md shadow-lg">
             <!-- Titolo del pannello -->
             <h1 class="text-xl"> Toggle Area </h1>
+
             <!-- Primo toggle -->
             <div class="flex space-y-2 mx-5 pt-3 ">
                 <div class="flex items-center justify-between gap-4">
@@ -53,6 +54,8 @@
 
 <script>
 export default {
+    // Nominativo del component
+    name: 'toggleComponent',
     props: ["switchUserPositionState", "infoUserGeolocation", "infoLegendState"],
     emits: ["switchUserGeolocation", "switchLegend", "switchUserPosition"],
     setup(_, { emit }) {

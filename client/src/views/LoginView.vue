@@ -13,7 +13,7 @@
 import leaflet from "leaflet";
 import { onMounted, ref } from "vue";
 import LoginModal from "@/components/LoginModal.vue";
-import LoginErrorModal from "@/components/LoginErrorModal.vue";
+import LoginErrorModal from "@/components/errorModal/genericErrorModal/LoginErrorModal.vue";
 
 export default {
     name: 'LoginView',

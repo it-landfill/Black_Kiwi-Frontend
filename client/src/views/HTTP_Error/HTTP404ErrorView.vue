@@ -6,7 +6,7 @@
 
 <script>
 
-import HTTPErrorModal from "@/components/HTTP_Error_Modal/HTTPErrorModal.vue";
+import HTTPErrorModal from "@/components/errorModal/HTTPErrorModal/HTTPErrorModal.vue";
 
 export default {
     components: { HTTPErrorModal },

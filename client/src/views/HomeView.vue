@@ -40,7 +40,7 @@ import leaflet from "leaflet";
 // Import delle funzioni onMounted e ref di vue in "HomeView"
 import { onMounted, ref } from "vue";
 // Import delle componenti richiamate nel blocco <template>
-import GeoErrorModal from "@/components/GeoErrorModal.vue";
+import GeoErrorModal from "@/components/errorModal/genericErrorModal/GeoErrorModal.vue";
 import MapFeatures from "@/components/mapFeatureComponents/MapFeatures.vue";
 import ModifyPOIModal from "@/components/ModifyPOIModal.vue";
 
