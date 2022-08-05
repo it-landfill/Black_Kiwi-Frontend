@@ -1,40 +1,67 @@
+<!-- 
+    Template per la componente "MapFeatures".
+    La componente permette di gestire l'overlay della mappa.
+-->
 <template>
-    <div
-        class="w-full md: max-w-[400px] min-h-[90%] absolute md:top-[50px] md:left-[70px] z-[4] flex flex-col gap-4 px-6 py-8 md:px-0 md:py-0 bg-trasparent">
-
+    <!-- Components di sinistra -->
+    <div class="w-full max-w-[375px] min-h-[90%] absolute z-[4] flex flex-col top-[50px] left-[70px] bg-trasparent">
+        <!-- 
+            Richiamo alla componente "infoBlockComponent".
+        -->
         <infoBlockComponent />
+        <!-- 
+            Richiamo alla componente "searchBarComponent".
+        -->
         <searchBarComponent :coordsMapFeatures="coordsMapFeatures" :fetchCoordsMapFeatures="fetchCoordsMapFeatures" />
-        <toggleComponent @getGeolocationMapFeatures="getGeolocationMapFeatures" :coordsMapFeatures="coordsMapFeatures"/>
+        <!-- 
+            Richiamo alla componente "toggleComponent".
+        -->
+        <toggleComponent @switchUserGeolocation="switchUserGeolocation" @switchLegend="switchLegend"
+            :infoUserGeolocation="coordsMapFeatures" :infoLegendState="infoLegendState" />
 
     </div>
-
-    <div
-        class="w-full md: max-w-[350px] min-h-[90%] absolute md:top-[50px] md:right-[70px] z-[4] flex flex-col gap-4 px-6 py-8 md:px-0 md:py-0 bg-trasparent">
-        <legendComponent />
+    <!-- Components di destra -->
+    <div class="w-full max-w-[375px] min-h-[90%] absolute z-[4] flex flex-col top-[50px] right-[70px] bg-trasparent">
+        <!-- 
+            Richiamo alla componente "legendComponent".
+        -->
+        <legendComponent v-if="infoLegendState" />
     </div>
-
 </template>
 
 <script>
+// Import della funzioni ref di vue in "MapFeatures"
+import { ref } from "vue";
+// Import delle componenti richiamate nel blocco <template>
 import infoBlockComponent from "./infoBlockComponent.vue";
 import searchBarComponent from "./searchBarComponent.vue";
 import toggleComponent from "./toggleComponent.vue";
 import legendComponent from "./legendComponent.vue";
+
 export default {
-    props: ["coordsMapFeatures", "fetchCoordsMapFeatures"],
-    emits: ["getGeolocationMapFeatures"],
+    // Nominativo del component
+    name: 'MapFeatures',
     components: {
         infoBlockComponent,
         searchBarComponent,
         toggleComponent,
         legendComponent,
     },
-    setup() {
-    },
-    methods: {
-        getGeolocationMapFeatures() {
-            this.$emit("getGeolocationMapFeatures")
-        }
+    props: ["coordsMapFeatures", "fetchCoordsMapFeatures"],
+    emits: ["switchUserGeolocation"],
+    setup(_, { emit }) {
+        // Dichiarazione delle variabili di visualizzazione della leggenda.
+        const infoLegendState = ref(false);
+
+        const switchLegend = () => {
+            infoLegendState.value = !infoLegendState.value;
+        };
+
+        const switchUserGeolocation = () => {
+            emit('switchUserGeolocation')
+        };
+
+        return { infoLegendState, switchLegend, switchUserGeolocation };
     },
 };
 </script>

@@ -11,14 +11,14 @@
       Richiamo alla componente "MapFeatures". 
       Modificatori applicati:
         - v-on (alias @) ricollega un event listener all'elemento component (in questo caso MapFeatures).
-          Una volta aggiunto l'event listener, se la componente invia un evento (in questo caso "getGeolocationMapFeatur") 
-          la componente padre richiama l'handler definito (in questo caso "getGeolocation")
+          Una volta aggiunto l'event listener, se la componente invia un evento (in questo caso "switchUserGeolocation") 
+          la componente padre richiama l'handler definito (in questo caso "switchUserGeolocation")
           https://vuejs.org/api/built-in-directives.html#v-on
 
         - v-bind (alias :) collegamento tra uno o più attributi.
           https://vuejs.org/api/built-in-directives.html#v-bind
     -->
-    <MapFeatures @getGeolocationMapFeatures="getGeolocation" :coordsMapFeatures="coords"
+    <MapFeatures @switchUserGeolocation="switchUserGeolocation" :coordsMapFeatures="coords"
       :fetchCoordsMapFeatures="fetchCoords" />
     <!-- 
       Richiamo alla componente "ModifyPOIModal". 
@@ -84,13 +84,13 @@ export default {
       }).addTo(map);
       // Richiamo della funzione per l'ottenimento dei dati di geolocalizzazione 
       // del dispositivo.
-      getGeolocation();
+      switchUserGeolocation();
     })
 
     /*
       Funzione di geolocalizzazione del dispositivo.
     */
-    const getGeolocation = () => {
+    const switchUserGeolocation = () => {
       // Controllo dello stato di "coords" 
       if (coords.value) {
         coords.value = null;
@@ -155,7 +155,7 @@ export default {
       geoErrorMsg.value = null;
     };
 
-    return { coords, fetchCoords, geoMarker, geoError, geoErrorMsg, geoModifyRequest, closeGeoError, getGeolocation };
+    return { coords, fetchCoords, geoMarker, geoError, geoErrorMsg, geoModifyRequest, closeGeoError, switchUserGeolocation };
   }
 }
 </script>

@@ -1,3 +1,7 @@
+<!-- 
+    Template per la componente "MapFeatures".
+    La componente permette di gestire della leggenda.
+-->
 <template>
     <div class="absolute bottom-0 left-0 w-full">
         <div class="h-auto px-4 py-2 bg-white rounded-md shadow-lg">
