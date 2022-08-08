@@ -8,14 +8,14 @@
                     Error 404
                 </h2>
                 <p class="text-2xl font-semibold md:text-3xl">
-                    Sorry, we couldn't find this page.
+                    Ci scusiamo, ma si è verificato un errore nel caricare la pagina.
                 </p>
                 <p class="mt-4 mb-8 dark:text-slate-600">
-                    But dont worry, you can find plenty of other things on our homepage.
+                    NOn ti preoccupare e visita le altre pagina a disposizione.
                 </p>
-                <a rel="noopener noreferrer" href="#"
+                <a rel="noopener noreferrer" @click="goBack"
                     class="relative w-full flex justify-center py-2 px-4 border border-transparent text-md font-medium rounded-md bg-slate-300 text-slate-900  hover:bg-slate-900 hover:text-white">
-                    Back to homepage
+                    Indietro
                 </a>
             </div>
         </div>
@@ -24,6 +24,17 @@
 
 <script>
 export default {
+    // Nominativo del component
+    name: '404HTTPError',
     props: [],
+    setup() {
+
+        const goBack = () => {
+            console.log("Back.");
+            // TODO: https://vueschool.io/lessons/vuejs-router-creating-routes
+        };
+
+        return { goBack };
+    },
 }
 </script>

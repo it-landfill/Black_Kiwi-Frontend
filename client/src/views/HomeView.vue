@@ -19,13 +19,7 @@
           https://vuejs.org/api/built-in-directives.html#v-bind
     -->
     <MapFeatures @switchUserGeolocation="switchUserGeolocation" :coordsMapFeatures="coords"
-      :fetchCoordsMapFeatures="fetchCoords" />
-    <!-- 
-      Richiamo alla componente "ModifyPOIModal". 
-        - v-if render condizionato dallo stato di un attributo.
-          https://vuejs.org/api/built-in-directives.html#v-if
-    -->
-    <ModifyPOIModal v-if="geoModifyRequest" />
+      :fetchCoordsMapFeatures="fetchCoords" @modifySignal="modifySignal" @removeSignal="removeSignal" />
     <!-- 
       Richiamo alla componente "GeoErrorModal". 
     -->
@@ -42,14 +36,12 @@ import { onMounted, ref } from "vue";
 // Import delle componenti richiamate nel blocco <template>
 import GeoErrorModal from "@/components/errorModal/genericErrorModal/GeoErrorModal.vue";
 import MapFeatures from "@/components/mapFeatureComponents/MapFeatures.vue";
-import ModifyPOIModal from "@/components/ModifyPOIModal.vue";
 
 export default {
   // Nominativo del component
   name: 'HomeView',
   // Elenco dei components utilizzati
   components: {
-    ModifyPOIModal,
     GeoErrorModal,
     MapFeatures
   },
@@ -62,8 +54,6 @@ export default {
     // Dichiarazione delle variabili per la gestione degli errori.
     const geoError = ref(null);
     const geoErrorMsg = ref(null);
-    // Dichiarazione delle variabili per la gestione degla richiesta di modifica di un POI.
-    const geoModifyRequest = ref(null);
     // Dichiarazione delle variabili i marker sulla mappa dei punti di interesse.
     const geoMarker = ref(null);
 
@@ -155,7 +145,11 @@ export default {
       geoErrorMsg.value = null;
     };
 
-    return { coords, fetchCoords, geoMarker, geoError, geoErrorMsg, geoModifyRequest, closeGeoError, switchUserGeolocation };
+    const errorSignal = () => {
+      console.log("hola");
+    };
+
+    return { coords, fetchCoords, geoMarker, geoError, geoErrorMsg, closeGeoError, switchUserGeolocation, errorSignal };
   }
 }
 </script>

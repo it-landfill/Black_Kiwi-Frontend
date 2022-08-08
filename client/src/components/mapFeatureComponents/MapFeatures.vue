@@ -5,11 +5,21 @@
 <template>
     <!-- Components di sinistra -->
     <div class="w-full max-w-[375px] min-h-[90%] absolute z-[4] flex flex-col top-[50px] left-[70px] bg-trasparent">
-        <LoginErrorModal />
+        <!-- 
+        Richiamo alla componente "ModifyPOIModal". 
+            - v-if render condizionato dallo stato di un attributo.
+            https://vuejs.org/api/built-in-directives.html#v-if
+        -->
+        <ModifyPOIModal v-if="poiModifyState" />
         <!-- 
             Richiamo alla componente "infoBlockComponent".
         -->
-        <infoBlockComponent />
+        <ErrorModal v-if="infoErrorState" @closeError="closeError" :infoErrorTitle="infoErrorTitle"
+            :infoErrorMsg="infoErrorMsg" />
+        <!-- 
+            Richiamo alla componente "infoBlockComponent".
+        -->
+        <infoBlockComponent @modifySignal="switchPoiModifier" @removeSignal="removeSignal" />
         <!-- 
             Richiamo alla componente "searchBarComponent".
         -->
@@ -38,7 +48,8 @@ import infoBlockComponent from "./infoBlockComponent.vue";
 import searchBarComponent from "./searchBarComponent.vue";
 import toggleComponent from "./toggleComponent.vue";
 import legendComponent from "./legendComponent.vue";
-import LoginErrorModal from "@/components/errorModal/genericErrorModal/LoginErrorModal.vue";
+import ErrorModal from "@/components/errorModal/genericErrorModal/ErrorModal.vue";
+import ModifyPOIModal from "@/components/ModifyPOIModal.vue";
 
 export default {
     // Nominativo del component
@@ -48,13 +59,20 @@ export default {
         searchBarComponent,
         toggleComponent,
         legendComponent,
-        LoginErrorModal,
+        ErrorModal,
+        ModifyPOIModal,
     },
     props: ["coordsMapFeatures", "fetchCoordsMapFeatures"],
-    emits: ["switchUserGeolocation"],
+    emits: ["switchUserGeolocation", "modifySignal", "removeSignal"],
     setup(_, { emit }) {
         // Dichiarazione delle variabili di visualizzazione della leggenda.
         const infoLegendState = ref(false);
+        // Dichiarazione delle variabili di visualizzazione della finestra di errore.
+        const infoErrorState = ref(true);
+        const infoErrorTitle = ref("Errore nella pagina di visualizzazione della home.");
+        const infoErrorMsg = ref("Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.");
+        // Dichiarazione delle variabili per la gestione degla richiesta di modifica di un POI.
+        const poiModifyState = ref(false);
 
         const switchLegend = () => {
             infoLegendState.value = !infoLegendState.value;
@@ -64,7 +82,34 @@ export default {
             emit('switchUserGeolocation')
         };
 
-        return { infoLegendState, switchLegend, switchUserGeolocation };
+        const closeError = () => {
+            infoErrorState.value = false;
+        };
+
+        const removeSignal = () => {
+            console.log("Passo");
+            emit('removeSignal');
+        };
+
+        const switchPoiModifier = () => {
+            poiModifyState.value = !poiModifyState.value;
+            emit('modifySignal');
+        };
+
+
+
+        return {
+            infoLegendState,
+            infoErrorState,
+            infoErrorTitle,
+            infoErrorMsg,
+            poiModifyState,
+            switchLegend,
+            switchUserGeolocation,
+            closeError,
+            removeSignal,
+            switchPoiModifier
+        };
     },
 };
 </script>

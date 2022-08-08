@@ -28,19 +28,15 @@
                 </dl>
             </div>
 
-            <div class="sm:grid sm:grid-cols-5 sm:px-4 text-sm pt-4 pb-2 gap-2">
-                <div class="col-start-1 col-span-3">
-                    <div
-                        class="border-[1px] border-slate-600 text-slate-600 shadow flex justify-center items-center rounded-md min-h-[40px]">
-                        <i class="fa-solid fa-i-cursor font-medium tracking-widest"> Modifica</i>
-                    </div>
-                </div>
-                <div class="col-start-4 col-span-2">
-                    <div
-                        class="border-[1px] border-red-600 text-red-600 shadow flex justify-center items-center rounded-md min-h-[40px]">
-                        <i class="fa-solid fa-trash-can font-medium tracking-widest"> Elimina</i>
-                    </div>
-                </div>
+            <div class="sm:flex sm:flex-row-reverse sm:px-4 text-sm pt-4 pb-2 gap-2">
+                <button @click="removeSignal" class=" w-full inline-flex justify-center rounded-md border border-transparent
+                            py-2 px-4 text-slate-500  text-base font-medium 
+                            hover:text-slate-900 sm:ml-3 sm:w-auto
+                            sm:text-sm">Eliminare</button>
+                <button @click="modifySignal" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
+                             py-2 bg-slate-200 text-slate-900 text-base font-medium hover:bg-slate-900
+                            hover:text-white 
+                            sm:text-sm">Modificare</button>
             </div>
 
         </div>
@@ -50,5 +46,23 @@
 <script>
 
 export default {
+    // Nominativo del component
+    name: 'ErrorModal',
+    props: [],
+    emits: ["modifySignal", "removeSignal"],
+    setup(_, { emit }) {
+
+        const modifySignal = () => {
+            console.log("Premuto il bottone per la modifica di un punto di interesse.");
+            emit("modifySignal");
+        };
+
+        const removeSignal = () => {
+            console.log("Premuto il bottone per l'eliminazione di un punto di interesse.");
+            emit("removeSignal");
+        };
+
+        return { modifySignal, removeSignal };
+    },
 };
 </script>
