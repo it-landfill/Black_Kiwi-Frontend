@@ -11,15 +11,15 @@
       Richiamo alla componente "MapFeatures". 
       Modificatori applicati:
         - v-on (alias @) ricollega un event listener all'elemento component (in questo caso MapFeatures).
-          Una volta aggiunto l'event listener, se la componente invia un evento (in questo caso "switchUserGeolocation") 
-          la componente padre richiama l'handler definito (in questo caso "switchUserGeolocation")
+          Una volta aggiunto l'event listener, se la componente invia un evento (in questo caso "switchPOI") 
+          la componente padre richiama l'handler definito (in questo caso "switchPOI")
           https://vuejs.org/api/built-in-directives.html#v-on
 
         - v-bind (alias :) collegamento tra uno o più attributi.
           https://vuejs.org/api/built-in-directives.html#v-bind
     -->
-    <MapFeatures @switchUserGeolocation="switchUserGeolocation" :coordsMapFeatures="coords"
-      :fetchCoordsMapFeatures="fetchCoords" @modifySignal="modifySignal" @removeSignal="removeSignal" />
+    <MapFeatures @switchPOI="switchPOI" :coordsMapFeatures="coords" :fetchCoordsMapFeatures="fetchCoords"
+      @modifySignal="modifySignal" @removeSignal="removeSignal" />
     <!-- 
       Richiamo alla componente "GeoErrorModal". 
     -->
@@ -29,6 +29,7 @@
 
 
 <script>
+
 // Import della libreria di leaflet in "HomeView"
 import leaflet from "leaflet";
 // Import delle funzioni onMounted e ref di vue in "HomeView"
@@ -64,7 +65,7 @@ export default {
     */
     onMounted(() => {
       // Inizializzazione della mappa di leaflet con i valori di default.
-      map = leaflet.map('baseMap').setView([51.505, -0.09], 15);
+      map = leaflet.map('baseMap').setView([44.4939, 11.3428], 15);
       // Aggiunta del livello per le tile della mappa
       leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -74,13 +75,13 @@ export default {
       }).addTo(map);
       // Richiamo della funzione per l'ottenimento dei dati di geolocalizzazione 
       // del dispositivo.
-      switchUserGeolocation();
+      // switchPOI();
     })
 
     /*
       Funzione di geolocalizzazione del dispositivo.
     */
-    const switchUserGeolocation = () => {
+    const switchPOI = () => {
       // Controllo dello stato di "coords" 
       if (coords.value) {
         coords.value = null;
@@ -97,47 +98,29 @@ export default {
         return;
       }
       fetchCoords.value = true;
-      navigator.geolocation.getCurrentPosition(setCoords, getLocError);
-    };
-
-    const setCoords = (pos) => {
-      // stop fetching coords
-      fetchCoords.value = null;
-
-      // set coords in session storage
-      const setSessionCoords = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude
-      };
-
-      sessionStorage.setItem('coords', JSON.stringify(setSessionCoords));
-
-      // set ref coords value
-      coords.value = setSessionCoords;
-
       plotGeolocation(coords.value);
     };
 
-    const plotGeolocation = (coords) => {
+    async function addGeoJson() {
+      const response = await fetch("./geoJSON/poi_museum.geojson");
+      const data = await response.json();
+      leaflet.geoJson(data).addTo(map);
+    }
+
+    const plotGeolocation = () => {
       // create custom marker
       const customMarker = leaflet.icon({
         iconUrl: require("../assets/map-marker-blue.svg"),
         iconSize: [35, 35],
       });
+      // 44.8353	11.6199
+
 
       // create new marker with coords and custom icon
       geoMarker.value = leaflet
-        .marker([coords.lat, coords.lng], { icon: customMarker })
+        .marker([44.4939, 11.3428], { icon: customMarker })
         .addTo(map);
-
-      // set map view to current location
-      map.setView([coords.lat, coords.lng], 10);
-    };
-
-    const getLocError = (err) => {
-      fetchCoords.value = null;
-      geoError.value = true;
-      geoErrorMsg.value = err.message;
+      addGeoJson();
     };
 
     const closeGeoError = () => {
@@ -149,7 +132,7 @@ export default {
       console.log("hola");
     };
 
-    return { coords, fetchCoords, geoMarker, geoError, geoErrorMsg, closeGeoError, switchUserGeolocation, errorSignal };
+    return { coords, fetchCoords, geoMarker, geoError, geoErrorMsg, closeGeoError, switchPOI, errorSignal, plotGeolocation };
   }
 }
 </script>

@@ -14,11 +14,11 @@
             <div class="flex space-y-2 mx-5 pt-3 ">
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex min-h-[45px] max-w-[45px] items-center align-middle shadow-md rounded-md px-4 bg-white cursor-pointer"
-                        :class="{ 'bg-slate-600': infoUserGeolocation }" @click="switchUserGeolocation">
+                        :class="{ 'bg-slate-600': infoPOIState }" @click="switchPOI">
                         <i class="fas fa-location-arrow text-state-600 text-[20px]"
-                            :class="{ 'text-white': infoUserGeolocation }"></i>
+                            :class="{ 'text-white': infoPOIState }"></i>
                     </div>
-                    <p> Posizione attuale dell'utente. </p>
+                    <p> Visualizzazione punti di interesse. </p>
                 </div>
             </div>
 
@@ -53,16 +53,22 @@
 </template>
 
 <script>
+// Import della funzioni ref di vue in "MapFeatures"
+import { ref } from "vue";
 export default {
     // Nominativo del component
     name: 'toggleComponent',
-    props: ["switchUserPositionState", "infoUserGeolocation", "infoLegendState"],
-    emits: ["switchUserGeolocation", "switchLegend", "switchUserPosition"],
+    props: ["switchUserPositionState", "switchPOIState", "infoLegendState"],
+    emits: ["switchPOI", "switchLegend", "switchUserPosition"],
     setup(_, { emit }) {
 
-        const switchUserGeolocation = () => {
+        // Dichiarazione delle variabili di visualizzazione della leggenda.
+        const infoPOIState = ref(false);
+
+        const switchPOI = () => {
             console.log("Premuto il bottone per la geolocalizzazione.");
-            emit("switchUserGeolocation");
+            infoPOIState.value = !infoPOIState.value;
+            emit("switchPOI");
         };
 
         const switchLegend = () => {
@@ -74,7 +80,7 @@ export default {
             emit("switchUserPosition");
         };
 
-        return { switchUserGeolocation, switchLegend, switchUserPosition };
+        return { infoPOIState, switchPOI, switchLegend, switchUserPosition };
     },
 };
 </script>

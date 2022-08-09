@@ -27,8 +27,8 @@
         <!-- 
             Richiamo alla componente "toggleComponent".
         -->
-        <toggleComponent @switchUserGeolocation="switchUserGeolocation" @switchLegend="switchLegend"
-            :infoUserGeolocation="coordsMapFeatures" :infoLegendState="infoLegendState" />
+        <toggleComponent @switchPOI="switchPOI" @switchLegend="switchLegend" :infoUserGeolocation="coordsMapFeatures"
+            :infoLegendState="infoLegendState" />
 
     </div>
     <!-- Components di destra -->
@@ -63,12 +63,12 @@ export default {
         ModifyPOIModal,
     },
     props: ["coordsMapFeatures", "fetchCoordsMapFeatures"],
-    emits: ["switchUserGeolocation", "modifySignal", "removeSignal"],
+    emits: ["switchPOI", "modifySignal", "removeSignal"],
     setup(_, { emit }) {
         // Dichiarazione delle variabili di visualizzazione della leggenda.
         const infoLegendState = ref(false);
         // Dichiarazione delle variabili di visualizzazione della finestra di errore.
-        const infoErrorState = ref(true);
+        const infoErrorState = ref(false);
         const infoErrorTitle = ref("Errore nella pagina di visualizzazione della home.");
         const infoErrorMsg = ref("Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.");
         // Dichiarazione delle variabili per la gestione degla richiesta di modifica di un POI.
@@ -78,8 +78,8 @@ export default {
             infoLegendState.value = !infoLegendState.value;
         };
 
-        const switchUserGeolocation = () => {
-            emit('switchUserGeolocation')
+        const switchPOI = () => {
+            emit('switchPOI')
         };
 
         const closeError = () => {
@@ -105,7 +105,7 @@ export default {
             infoErrorMsg,
             poiModifyState,
             switchLegend,
-            switchUserGeolocation,
+            switchPOI,
             closeError,
             removeSignal,
             switchPoiModifier
