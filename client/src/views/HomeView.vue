@@ -52,11 +52,11 @@ export default {
     // Dichiarazione delle variabili di geolocalizzazione.
     const coords = ref(null);
     const fetchCoords = ref(null);
+    let marker = ref(null);
     // Dichiarazione delle variabili per la gestione degli errori.
     const geoError = ref(null);
     const geoErrorMsg = ref(null);
-    // Dichiarazione delle variabili i marker sulla mappa dei punti di interesse.
-    const geoMarker = ref(null);
+
 
     /* 
       onMounted, composition API che permette di eseguire una chiamata quando la componente in 
@@ -73,55 +73,48 @@ export default {
         detectRetina: true,
         attribution: '© OpenStreetMap'
       }).addTo(map);
-      // Richiamo della funzione per l'ottenimento dei dati di geolocalizzazione 
-      // del dispositivo.
-      // switchPOI();
     })
 
     /*
       Funzione di geolocalizzazione del dispositivo.
     */
     const switchPOI = () => {
+      console.log("HomeView - switchPOI executed");
       // Controllo dello stato di "coords" 
       if (coords.value) {
-        coords.value = null;
-        sessionStorage.removeItem("coords");
-        // map.removeLayer(geoMarker.value); può non funzionare correttamente.
-        // [Warning] listener not found - f_off - Events.js:180
-        map.removeLayer(geoMarker.value);
+        coords.value = false;
+        // Remove marker
+        map.removeLayer(marker);
+
         return;
+      } else {
+        coords.value = true;
+        addGeoJson()
       }
-      // controllo della sessione storage per le coordinate.
-      if (sessionStorage.getItem("coords")) {
-        coords.value = JSON.parse(sessionStorage.getItem("coords"));
-        plotGeolocation(coords.value);
-        return;
-      }
-      fetchCoords.value = true;
-      plotGeolocation(coords.value);
     };
+
+    var geojsonMarkerOptions = leaflet.icon({
+      iconUrl: "./markerICO/building.columns.circle.fill.svg",
+      iconSize: [38, 95],
+      iconAnchor: [22, 94],
+      popupAnchor: [-3, -76],
+      shadowSize: [68, 95],
+      shadowAnchor: [22, 94],
+    });
 
     async function addGeoJson() {
       const response = await fetch("./geoJSON/poi_museum.geojson");
       const data = await response.json();
-      leaflet.geoJson(data).addTo(map);
+      const geojson = leaflet.geoJson(data, {
+        pointToLayer: function (feature, latlng) {
+          return leaflet.marker(latlng, { icon: geojsonMarkerOptions });
+        },
+        onEachFeature: function (feature, layer) {
+          layer.bindPopup(feature.properties.name);
+        }
+      }).addTo(map);
+      marker = geojson;
     }
-
-    const plotGeolocation = () => {
-      // create custom marker
-      const customMarker = leaflet.icon({
-        iconUrl: require("../assets/map-marker-blue.svg"),
-        iconSize: [35, 35],
-      });
-      // 44.8353	11.6199
-
-
-      // create new marker with coords and custom icon
-      geoMarker.value = leaflet
-        .marker([44.4939, 11.3428], { icon: customMarker })
-        .addTo(map);
-      addGeoJson();
-    };
 
     const closeGeoError = () => {
       geoError.value = null;
@@ -132,7 +125,7 @@ export default {
       console.log("hola");
     };
 
-    return { coords, fetchCoords, geoMarker, geoError, geoErrorMsg, closeGeoError, switchPOI, errorSignal, plotGeolocation };
+    return { coords, fetchCoords, geoError, geoErrorMsg, closeGeoError, switchPOI, errorSignal };
   }
 }
 </script>

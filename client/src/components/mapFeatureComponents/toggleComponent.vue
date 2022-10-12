@@ -66,7 +66,7 @@ export default {
         const infoPOIState = ref(false);
 
         const switchPOI = () => {
-            console.log("Premuto il bottone per la geolocalizzazione.");
+            console.log("toggleComponent - switchPOI clicked");
             infoPOIState.value = !infoPOIState.value;
             emit("switchPOI");
         };
