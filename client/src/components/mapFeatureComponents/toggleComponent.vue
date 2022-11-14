@@ -48,6 +48,18 @@
                 </div>
             </div>
 
+            <!-- Quarto toggle -->
+            <div class="flex space-y-2 mx-5 pt-3 ">
+                <div class="flex items-center justify-between gap-4">
+                    <div class="flex min-h-[45px] max-w-[45px] items-center align-middle shadow-md rounded-md px-4 bg-white cursor-pointer"
+                        :class="{ 'bg-slate-600': infoAddPOIState }" @click="switchAddPOI">
+                        <i class="fas fa-location-arrow text-state-600 text-[20px]"
+                            :class="{ 'text-white': infoAddPOIState }"></i>
+                    </div>
+                    <p> Aggiungi punto di interesse. </p>
+                </div>
+            </div>
+
         </div>
     </div>
 </template>
@@ -59,11 +71,12 @@ export default {
     // Nominativo del component
     name: 'toggleComponent',
     props: ["switchUserPositionState", "switchPOIState", "infoLegendState"],
-    emits: ["switchPOI", "switchLegend", "switchUserPosition"],
+    emits: ["switchPOI", "switchAddPOI", "switchLegend", "switchUserPosition"],
     setup(_, { emit }) {
 
         // Dichiarazione delle variabili di visualizzazione della leggenda.
         const infoPOIState = ref(false);
+        const infoAddPOIState = ref(false);
 
         const switchPOI = () => {
             console.log("toggleComponent - switchPOI clicked");
@@ -75,12 +88,26 @@ export default {
             console.log("Premuto il bottone per la heatmap.");
             emit("switchLegend");
         };
+
         const switchUserPosition = () => {
             console.log("Premuto il bottone per visualizzare la posizione degli utenti.");
             emit("switchUserPosition");
         };
 
-        return { infoPOIState, switchPOI, switchLegend, switchUserPosition };
+        const switchAddPOI = () => {
+            console.log("Premuto il bottone per aggiungere un punto di interesse.");
+            infoAddPOIState.value = !infoAddPOIState.value;
+            emit("switchAddPOI");
+        };
+
+        return { 
+            infoPOIState, 
+            infoAddPOIState,
+            switchPOI, 
+            switchLegend, 
+            switchUserPosition, 
+            switchAddPOI 
+        };
     },
 };
 </script>

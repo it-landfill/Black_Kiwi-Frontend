@@ -4,8 +4,10 @@
   che precompila la componente alla visualizzazione.
 -->
 <template>
+
   <div class="h-screen relative">
     <!-- Definizione delle caratteristiche grafiche della mappa. -->
+
     <div id="baseMap" class="h-full z-[1]" />
     <!-- 
       Richiamo alla componente "MapFeatures". 
@@ -18,14 +20,57 @@
         - v-bind (alias :) collegamento tra uno o più attributi.
           https://vuejs.org/api/built-in-directives.html#v-bind
     -->
-    <MapFeatures @switchPOI="switchPOI" :coordsMapFeatures="coords" :fetchCoordsMapFeatures="fetchCoords"
-      @modifySignal="modifySignal" @removeSignal="removeSignal" />
+    <MapFeatures ref="mapFeatures" @switchPOI="switchPOI" @modifySignal="modifySignal" @switchAddPOI="switchAddPOI"
+      @removeSignal="removeSignal" :coordsMapFeatures="coords"
+      :fetchCoordsMapFeatures="fetchCoords" />
+
+    <AddPOIModal v-if="addPOIState" :coordsNewPOI="coordsNewPOI" @closeAddPOIModal="closeAddPOIModal" />
     <!-- 
       Richiamo alla componente "GeoErrorModal". 
     -->
     <GeoErrorModal @closeGeoError="closeGeoError" v-if="geoError" :geoErrorMsg="geoErrorMsg" />
   </div>
 </template>
+
+<!-- set width and height styles for map -->
+<style>
+/* css to customize Leaflet default styles  */
+.HistoricalBuilding .leaflet-popup-tip,
+.HistoricalBuilding .leaflet-popup-content-wrapper {
+  background: #df0ddc;
+  color: #ffffff;
+}
+
+.Park .leaflet-popup-tip,
+.Park .leaflet-popup-content-wrapper {
+  background: #0ddf3a;
+  color: #ffffff;
+}
+
+.Theater .leaflet-popup-tip,
+.Theater .leaflet-popup-content-wrapper {
+  background: #df0d0d;
+  color: #ffffff;
+}
+
+.Museum .leaflet-popup-tip,
+.Museum .leaflet-popup-content-wrapper {
+  background: #3a0ddf;
+  color: #ffffff;
+}
+
+.Department .leaflet-popup-tip,
+.Department .leaflet-popup-content-wrapper {
+  background: #000000;
+  color: #ffffff;
+}
+
+.Default .leaflet-popup-tip,
+.Default .leaflet-popup-content-wrapper {
+  background: #df810d;
+  color: #ffffff;
+}
+</style>
 
 
 <script>
@@ -36,7 +81,18 @@ import leaflet from "leaflet";
 import { onMounted, ref } from "vue";
 // Import delle componenti richiamate nel blocco <template>
 import GeoErrorModal from "@/components/errorModal/genericErrorModal/GeoErrorModal.vue";
+import AddPOIModal from "@/components/AddPOIModal.vue";
 import MapFeatures from "@/components/mapFeatureComponents/MapFeatures.vue";
+
+import {
+  geojsonMarkerOptions,
+  geojsonMarkerOptionsHistoricalBuilding,
+  geojsonMarkerOptionsPark,
+  geojsonMarkerOptionsTheater,
+  geojsonMarkerOptionsMuseum,
+  geojsonMarkerOptionsDepartment,
+  generatorPopupInfo
+} from "@/components/js/dataLeaflet.js"
 
 export default {
   // Nominativo del component
@@ -44,7 +100,8 @@ export default {
   // Elenco dei components utilizzati
   components: {
     GeoErrorModal,
-    MapFeatures
+    MapFeatures,
+    AddPOIModal
   },
   setup() {
     //  Dichiarazione della variabile map.
@@ -52,11 +109,17 @@ export default {
     // Dichiarazione delle variabili di geolocalizzazione.
     const coords = ref(null);
     const fetchCoords = ref(null);
+    let dataFormatted;
     let marker = ref(null);
     // Dichiarazione delle variabili per la gestione degli errori.
     const geoError = ref(null);
     const geoErrorMsg = ref(null);
+    // Dichiarazione delle variabili per la gestione dell'aggiunta dei POI.
+    const addPOIMode = ref(false);
+    const coordsNewPOI = ref({ lat: null, lng: null });
+    const addPOIState = ref(false);
 
+    const mapFeatures = ref(null);
 
     /* 
       onMounted, composition API che permette di eseguire una chiamata quando la componente in 
@@ -85,7 +148,6 @@ export default {
         coords.value = false;
         // Remove marker
         map.removeLayer(marker);
-
         return;
       } else {
         coords.value = true;
@@ -93,27 +155,106 @@ export default {
       }
     };
 
-    var geojsonMarkerOptions = leaflet.icon({
-      iconUrl: "./markerICO/building.columns.circle.fill.svg",
-      iconSize: [38, 95],
-      iconAnchor: [22, 94],
-      popupAnchor: [-3, -76],
-      shadowSize: [68, 95],
-      shadowAnchor: [22, 94],
-    });
+    function addGeoJson() {
 
-    async function addGeoJson() {
-      const response = await fetch("./geoJSON/poi_museum.geojson");
-      const data = await response.json();
-      const geojson = leaflet.geoJson(data, {
-        pointToLayer: function (feature, latlng) {
-          return leaflet.marker(latlng, { icon: geojsonMarkerOptions });
-        },
-        onEachFeature: function (feature, layer) {
-          layer.bindPopup(feature.properties.name);
-        }
-      }).addTo(map);
-      marker = geojson;
+      let requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+      };
+
+      //fetch("./geoJSON/poi_museum.geojson", requestOptions)
+      fetch("http://casadiale.noip.me:62950/pois", requestOptions)
+        .then(async response => {
+          const data = await response.json();
+          dataFormatted = data.map((item) => {
+            return {
+              "type": "Feature",
+              "properties": {
+                "id": item.id,
+                "name": item.name,
+                "category": item.category,
+                "rank": item.rank
+              },
+              "geometry": {
+                "type": "Point",
+                "coordinates": [item.coord.latitude, item.coord.longitude]
+              }
+            }
+          })
+          // Add GeoJSON
+          const geojson = leaflet.geoJson(dataFormatted, {
+            pointToLayer: function (feature, latlng) {
+              switch (feature.properties.category) {
+                case "Historical Building":
+                  return leaflet.marker(latlng, { icon: geojsonMarkerOptionsHistoricalBuilding });
+                case "Park":
+                  return leaflet.marker(latlng, { icon: geojsonMarkerOptionsPark });
+                case "Theater":
+                  return leaflet.marker(latlng, { icon: geojsonMarkerOptionsTheater });
+                case "Museum":
+                  return leaflet.marker(latlng, { icon: geojsonMarkerOptionsMuseum });
+                case "Department":
+                  return leaflet.marker(latlng, { icon: geojsonMarkerOptionsDepartment });
+                default:
+                  return leaflet.marker(latlng, { icon: geojsonMarkerOptions });
+              }
+            },
+            onEachFeature: function (feature, layer) {
+              // create popup contents
+              let customPopup = generatorPopupInfo(feature);
+              layer.bindPopup(customPopup.content, customPopup.style);
+              layer.on('click', function () {
+                console.log("HomeView - addGeoJson - onEachFeature - click executed");
+                let nodeInfo = {
+                  id: feature.properties.id,
+                  name: feature.properties.name,
+                  category: feature.properties.category,
+                  rank: feature.properties.rank,
+                  latitude: feature.geometry.coordinates[0].toFixed(3),
+                  longitude: feature.geometry.coordinates[1].toFixed(3)
+                }
+                console.debug(nodeInfo);
+                mapFeatures.value.switchPointOfInterestState(nodeInfo);
+              });
+            }
+          }).addTo(map);
+          marker = geojson;
+          if (response.status !== 200) {
+            const error = (data && data.message) || response.status;
+            return Promise.reject(error);
+          }
+        })
+        .catch(error => {
+          console.error("There was an error!", error);
+        });
+
+    }
+
+    // Aggiunta di un punto di interesse
+    const switchAddPOI = () => {
+      console.log("HomeView - switchAddPOI executed");
+      addPOIMode.value = !addPOIMode.value;
+      if (addPOIMode.value) {
+        document.getElementById('baseMap').style.cursor = 'crosshair'
+        map.on('click',
+          function (e) {
+            var coord = e.latlng.toString().split(',');
+            coordsNewPOI.value.lat = coord[0].split('(')[1];
+            coordsNewPOI.value.lng = coord[1].split(')')[0];
+            console.log("You clicked the map at latitude: " + coordsNewPOI.value.lat + " and longitude: " + coordsNewPOI.value.lng);
+            addPOIState.value = true;
+          });
+      } else {
+        document.getElementById('baseMap').style.cursor = ''
+        map.off('click');
+      }
+    };
+
+    const closeAddPOIModal = () => {
+      console.log("HomeView - closeAddPOIModal executed");
+      addPOIState.value = false;
+      document.getElementById('baseMap').style.cursor = ''
+      map.off('click');
     }
 
     const closeGeoError = () => {
@@ -125,7 +266,7 @@ export default {
       console.log("hola");
     };
 
-    return { coords, fetchCoords, geoError, geoErrorMsg, closeGeoError, switchPOI, errorSignal };
+    return { coords, fetchCoords, geoError, geoErrorMsg, addPOIState, coordsNewPOI, mapFeatures, closeAddPOIModal, closeGeoError, switchPOI, switchAddPOI, errorSignal };
   }
 }
 </script>

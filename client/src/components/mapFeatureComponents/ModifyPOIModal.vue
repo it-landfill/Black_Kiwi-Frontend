@@ -13,21 +13,19 @@
                                 <form action="#" method="POST">
                                     <div class="grid grid-cols-6 gap-6">
                                         <div class="col-span-6 sm:col-span-4">
-                                            <label for="dato-1" class="block pb-2 text-sm font-medium text-gray-700">
-                                                Nome del dato corrente.
+                                            <label for="Nome" class="block pb-2 text-sm font-medium text-gray-700">
+                                                Nome
                                             </label>
-                                            <input type="text" name="dato-1" id="dato-1"
-                                                class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
-                                                placeholder="Attuale valore per il dato corrente">
+                                            <input type="text" name="Nome" id="Nome"
+                                                class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm">
                                         </div>
 
                                         <div class="col-span-6 sm:col-span-4">
-                                            <label for="dato-2" class="block pb-2 text-sm font-medium text-gray-700">
-                                                Nome del dato corrente.
+                                            <label for="Rank" class="block pb-2 text-sm font-medium text-gray-700">
+                                                Rank
                                             </label>
-                                            <input type="text" name="dato-2" id="dato-2"
-                                                class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
-                                                placeholder="Attuale valore per il dato corrente">
+                                            <input type="number" name="Rank" id="Rank"
+                                                class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm">
                                         </div>
                                     </div>
 
@@ -35,25 +33,35 @@
                                         <p class="block text-sm font-medium text-gray-700">
                                             Tipologia
                                         </p>
+
                                         <div class="flex items-center">
-                                            <input id="push-tipologia-1" name="push-notifications" type="radio"
+                                            <input id="Historical Building" name="push-notifications" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="push-tipologia-1"
-                                                class="ml-3 block text-sm font-medium text-gray-900"> Tipologia 1
+                                            <label for="Historical Building" class="ml-3 block text-sm font-medium text-gray-900"> Historical Building
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="push-tipologia-2" name="push-notifications" type="radio"
+                                            <input id="Park" name="push-notifications" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="push-tipologia-2"
-                                                class="ml-3 block text-sm font-medium text-gray-900"> Tipologia 2
+                                            <label for="Park" class="ml-3 block text-sm font-medium text-gray-900"> Park
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="push-tipologia-3" name="push-notifications" type="radio"
+                                            <input id="Theater" name="push-notifications" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="push-tipologia-3"
-                                                class="ml-3 block text-sm font-medium text-gray-900"> Tipologia 3
+                                            <label for="Theater" class="ml-3 block text-sm font-medium text-gray-900"> Theater
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="Museum" name="push-notifications" type="radio"
+                                                class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
+                                            <label for="Museum" class="ml-3 block text-sm font-medium text-gray-900"> Museum
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="Department" name="push-notifications" type="radio"
+                                                class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
+                                            <label for="Department" class="ml-3 block text-sm font-medium text-gray-900"> Department
                                             </label>
                                         </div>
                                     </div>
@@ -79,7 +87,29 @@
 
 <script>
 
+import { onMounted } from "vue";
+
 export default {
-    props: [],
+    // Nominativo del component
+    name: 'ModifyPOIModal',
+    props: ["nodeInfo"],
+
+    setup(props) {
+
+        onMounted(() => {
+            document.getElementById("Nome").setAttribute("value", props.nodeInfo.name);
+            document.getElementById("Rank").setAttribute("value", props.nodeInfo.rank);
+            document.getElementById(props.nodeInfo.category).setAttribute("checked", true);
+        });
+
+        const setupForm = () => {
+            console.log(props.nodeInfo);
+
+        }
+
+        return {
+            setupForm
+        }
+    }
 };
 </script>

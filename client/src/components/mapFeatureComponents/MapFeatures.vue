@@ -10,7 +10,7 @@
             - v-if render condizionato dallo stato di un attributo.
             https://vuejs.org/api/built-in-directives.html#v-if
         -->
-        <ModifyPOIModal v-if="poiModifyState" />
+        <ModifyPOIModal ref="modifyPOIModal" v-if="poiModifyState" :nodeInfo="nodeInfo"/>
         <!-- 
             Richiamo alla componente "infoBlockComponent".
         -->
@@ -19,16 +19,13 @@
         <!-- 
             Richiamo alla componente "infoBlockComponent".
         -->
-        <infoBlockComponent @modifySignal="switchPoiModifier" @removeSignal="removeSignal" />
-        <!-- 
-            Richiamo alla componente "searchBarComponent".
-        -->
-        <searchBarComponent :coordsMapFeatures="coordsMapFeatures" :fetchCoordsMapFeatures="fetchCoordsMapFeatures" />
+        <infoBlockComponent v-if="infoPointOfInterestState" :nodeInfo="nodeInfo" @modifySignal="switchPoiModifier"
+            @removeSignal="removeSignal" />
         <!-- 
             Richiamo alla componente "toggleComponent".
         -->
-        <toggleComponent @switchPOI="switchPOI" @switchLegend="switchLegend" :infoUserGeolocation="coordsMapFeatures"
-            :infoLegendState="infoLegendState" />
+        <toggleComponent @switchPOI="switchPOI" @switchLegend="switchLegend" @switchAddPOI="switchAddPOI"
+            :infoUserGeolocation="coordsMapFeatures" :infoLegendState="infoLegendState" />
 
     </div>
     <!-- Components di destra -->
@@ -45,26 +42,27 @@
 import { ref } from "vue";
 // Import delle componenti richiamate nel blocco <template>
 import infoBlockComponent from "./infoBlockComponent.vue";
-import searchBarComponent from "./searchBarComponent.vue";
+
 import toggleComponent from "./toggleComponent.vue";
 import legendComponent from "./legendComponent.vue";
 import ErrorModal from "@/components/errorModal/genericErrorModal/ErrorModal.vue";
-import ModifyPOIModal from "@/components/ModifyPOIModal.vue";
+import ModifyPOIModal from "@/components/mapFeatureComponents/ModifyPOIModal.vue";
 
 export default {
     // Nominativo del component
     name: 'MapFeatures',
     components: {
         infoBlockComponent,
-        searchBarComponent,
         toggleComponent,
         legendComponent,
         ErrorModal,
         ModifyPOIModal,
     },
     props: ["coordsMapFeatures", "fetchCoordsMapFeatures"],
-    emits: ["switchPOI", "modifySignal", "removeSignal"],
-    setup(_, { emit }) {
+    emits: ["switchPOI", "switchAddPOI", "modifySignal", "removeSignal"],
+    setup(props, { emit }) {
+        // Dichiarazione delle variabili di visualizzazione della leggenda.
+        const infoPointOfInterestState = ref(false);
         // Dichiarazione delle variabili di visualizzazione della leggenda.
         const infoLegendState = ref(false);
         // Dichiarazione delle variabili di visualizzazione della finestra di errore.
@@ -73,6 +71,15 @@ export default {
         const infoErrorMsg = ref("Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.");
         // Dichiarazione delle variabili per la gestione degla richiesta di modifica di un POI.
         const poiModifyState = ref(false);
+        const nodeInfo = ref(null);
+      
+        const modifyPOIModal = ref(null);
+
+        // If props.nodeInfo is not null, then the infoBlockComponent is shown.
+        const switchPointOfInterestState = (nodeInfos) => {
+            nodeInfo.value = nodeInfos;
+            infoPointOfInterestState.value = !infoPointOfInterestState.value;
+        };
 
         const switchLegend = () => {
             infoLegendState.value = !infoLegendState.value;
@@ -80,6 +87,10 @@ export default {
 
         const switchPOI = () => {
             emit('switchPOI')
+        };
+
+        const switchAddPOI = () => {
+            emit('switchAddPOI')
         };
 
         const closeError = () => {
@@ -93,22 +104,28 @@ export default {
 
         const switchPoiModifier = () => {
             poiModifyState.value = !poiModifyState.value;
+            
             emit('modifySignal');
         };
 
 
 
         return {
+            infoPointOfInterestState,
             infoLegendState,
             infoErrorState,
             infoErrorTitle,
             infoErrorMsg,
             poiModifyState,
+            nodeInfo,
+            modifyPOIModal,
+            switchPointOfInterestState,
             switchLegend,
             switchPOI,
             closeError,
             removeSignal,
-            switchPoiModifier
+            switchPoiModifier,
+            switchAddPOI
         };
     },
 };
