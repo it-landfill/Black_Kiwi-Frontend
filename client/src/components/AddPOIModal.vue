@@ -139,7 +139,7 @@ export default {
                 body: addPOIJSON
             };
 
-            fetch("http://localhost:8081/login", requestOptions)
+            fetch("http://casadiale.noip.me:62950/admin/newPOI", requestOptions)
                 .then((response) => {
                     console.log(response);
                     switch (response.status) {
