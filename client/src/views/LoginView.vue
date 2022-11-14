@@ -10,7 +10,7 @@
             Richiamo alla componente "LoginModal".
                 -   Gestione del login dall'utente all'applicazione.
         -->
-        <LoginModal />
+        <LoginModal @loginPost="loginPost" @login404="login404" />
         <!-- 
             Definizione delle caratteristiche della componente grafica utilizzata 
             per la visualizzazione della mappa.
@@ -24,6 +24,7 @@
 import leaflet from "leaflet";
 // Import delle funzioni onMounted e ref di vue in "LoginView"
 import { onMounted, ref } from "vue";
+import router from '@/router'
 // Import delle componenti richiamate nel blocco <template>
 import LoginModal from "@/components/LoginModal.vue";
 import ErrorModal from "@/components/errorModal/genericErrorModal/ErrorModal.vue";
@@ -41,8 +42,8 @@ export default {
         let map;
         //  Dichiarazione delle variabili di visualizzazione della finestra di errore.
         const infoErrorState = ref(null);
-        const infoErrorTitle = ref("Errore nella pagina di visualizzazione del login.");
-        const infoErrorMsg = ref("Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.");
+        const infoErrorTitle = ref("Titolo: Errore default.");
+        const infoErrorMsg = ref("Testo: Errore default.");
 
         /* 
             onMounted, composition API che permette di eseguire una chiamata quando la componente in 
@@ -63,13 +64,22 @@ export default {
             });
         })
 
-        // TODO: Implementare la ricezione di errori dal server per il login.
+        const loginPost = () => {
+            // Router push per il reindirizzamento alla pagina "HomeView".
+            router.push({ name: "home" });
+        };
+
+        const login404 = () => {
+            infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
+            infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
+            infoErrorState.value = true;
+        };
 
         const closeError = () => {
             infoErrorState.value = false;
         };
 
-        return { infoErrorState, infoErrorTitle, infoErrorMsg, closeError };
+        return { infoErrorState, infoErrorTitle, infoErrorMsg, login404, loginPost, closeError };
     }
 }
 </script>
