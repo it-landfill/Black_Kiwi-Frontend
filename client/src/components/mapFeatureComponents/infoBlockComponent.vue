@@ -29,11 +29,11 @@
             </div>
 
             <div class="sm:flex sm:flex-row-reverse sm:px-4 text-sm pt-4 pb-2 gap-2">
-                <button @click="removeSignal" class=" w-full inline-flex justify-center rounded-md border border-transparent
+                <button @click="removePOI" class=" w-full inline-flex justify-center rounded-md border border-transparent
                             py-2 px-4 text-slate-500  text-base font-medium 
                             hover:text-slate-900 sm:ml-3 sm:w-auto
                             sm:text-sm">Eliminare</button>
-                <button @click="modifySignal" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
+                <button @click="modifyPOI" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
                              py-2 bg-slate-200 text-slate-900 text-base font-medium hover:bg-slate-900
                             hover:text-white 
                             sm:text-sm">Modificare</button>
@@ -49,24 +49,58 @@ export default {
     // Nominativo del component
     name: 'ErrorModal',
     props: ["nodeInfo"],
-    emits: ["modifySignal", "removeSignal"],
-    setup(props, { emit }) {
+    emits: ["modifyPOI", "removePOI"],
+    setup(_, { emit }) {
 
-        const getInfo = () => {
-            console.log("getInfo");
-        }
-
-        const modifySignal = () => {
+        const modifyPOI = () => {
             console.log("Premuto il bottone per la modifica di un punto di interesse.");
-            emit("modifySignal");
+            emit("modifyPOI");
         };
 
-        const removeSignal = () => {
-            console.log("Premuto il bottone per l'eliminazione di un punto di interesse.");
-            emit("removeSignal");
+        const removePOI = () => {
+            console.log("Premuto il bottone di eliminazione di un POI");
+            console.log(getToken());
+            const myHeaders = new Headers();
+            myHeaders.append('X-API-KEY', getToken());
+            console.log(myHeaders.get('X-API-KEY'));
+            var deletePOIJSON = new Object();
+            deletePOIJSON.id = nodeInfo.id
+            console.debug(deletePOIJSON);
+            var requestOptions = {
+                method: "POST",
+                headers: myHeaders,
+                body: deletePOIJSON
+            };
+
+            fetch(baseUri + "admin/newPOI", requestOptions)
+                .then((response) => {
+                    console.log(response);
+                    switch (response.status) {
+                        case 200:
+                            console.log("POI eliminato con successo");
+                            emit("removePOI");
+                            break;
+                        case 400:
+                            console.log("Bad request.");
+                            // emit("login400");
+                            break;
+                        case 401:
+                            console.log("Authorization information is missing or invalid.");
+                            // emit("login401");
+                            break;
+                        case 404:
+                            console.log("A user with the specified ID was not found.");
+                            // emit("login404");
+                            break;
+                        default:
+                            console.log("Errore sconosciuto.");
+                            break;
+                    }
+                })
+                .catch((error) => console.log("error", error));
         };
 
-        return { modifySignal, removeSignal, getInfo };
+        return { modifyPOI, removePOI };
     },
 };
 </script>

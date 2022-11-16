@@ -1,7 +1,3 @@
-<!-- 
-    Template per la componente "MapFeatures".
-    La componente permette di gestire l'overlay della mappa.
--->
 <template>
     <!-- Components di sinistra -->
     <div class="w-full max-w-[375px] min-h-[90%] absolute z-[4] flex flex-col top-[50px] left-[70px] bg-trasparent">
@@ -10,7 +6,12 @@
             - v-if render condizionato dallo stato di un attributo.
             https://vuejs.org/api/built-in-directives.html#v-if
         -->
-        <ModifyPOIModal ref="modifyPOIModal" v-if="poiModifyState" :nodeInfo="nodeInfo"/>
+        <ModifyPOIModal 
+            ref="modifyPOIModal" 
+            v-if="poiModifyState"   
+            @closeModifyPOIModal="closeModifyPOIModal"
+            :nodeInfo="nodeInfo"
+        />
         <!-- 
             Richiamo alla componente "infoBlockComponent".
         -->
@@ -19,21 +20,28 @@
         <!-- 
             Richiamo alla componente "infoBlockComponent".
         -->
-        <infoBlockComponent v-if="infoPointOfInterestState" :nodeInfo="nodeInfo" @modifySignal="switchPoiModifier"
-            @removeSignal="removeSignal" />
-        <!-- 
-            Richiamo alla componente "toggleComponent".
+        <infoBlockComponent 
+            v-if="infoPointOfInterestState" 
+            @modifyPOI="modifyPOI"
+            @removePOI="removePOI"
+            :nodeInfo="nodeInfo" 
+        />
+        <!--
+             emits: ["switchShowPOI", "switchAddPOI", "switchHeatMap", "switchUserPosition"],
         -->
-        <toggleComponent @switchPOI="switchPOI" @switchLegend="switchLegend" @switchAddPOI="switchAddPOI"
-            :infoUserGeolocation="coordsMapFeatures" :infoLegendState="infoLegendState" />
-
+        <toggleComponent 
+            @switchShowPOI="switchShowPOI" 
+            @switchAddPOI="switchAddPOI"
+            @switchHeatMap="switchHeatMap"
+            @switchClustering="switchClustering" 
+        />
     </div>
     <!-- Components di destra -->
     <div class="w-full max-w-[375px] min-h-[90%] absolute z-[4] flex flex-col top-[50px] right-[70px] bg-trasparent">
         <!-- 
             Richiamo alla componente "legendComponent".
         -->
-        <legendComponent v-if="infoLegendState" />
+        <legendComponent v-if="switchHeatMapShow" />
     </div>
 </template>
 
@@ -41,10 +49,10 @@
 // Import della funzioni ref di vue in "MapFeatures"
 import { ref } from "vue";
 // Import delle componenti richiamate nel blocco <template>
-import infoBlockComponent from "./infoBlockComponent.vue";
+import infoBlockComponent from "./mapFeatureComponents/infoBlockComponent.vue";
 
-import toggleComponent from "./toggleComponent.vue";
-import legendComponent from "./legendComponent.vue";
+import toggleComponent from "./mapFeatureComponents/toggleComponent.vue";
+import legendComponent from "./mapFeatureComponents/legendComponent.vue";
 import ErrorModal from "@/components/errorModal/genericErrorModal/ErrorModal.vue";
 import ModifyPOIModal from "@/components/mapFeatureComponents/ModifyPOIModal.vue";
 
@@ -59,12 +67,12 @@ export default {
         ModifyPOIModal,
     },
     props: ["coordsMapFeatures", "fetchCoordsMapFeatures"],
-    emits: ["switchPOI", "switchAddPOI", "modifySignal", "removeSignal"],
+    emits: ["switchShowPOI", "switchAddPOI", "switchHeatMap", "switchClustering", "modifyPOI", "removePOI"],
     setup(props, { emit }) {
         // Dichiarazione delle variabili di visualizzazione della leggenda.
         const infoPointOfInterestState = ref(false);
         // Dichiarazione delle variabili di visualizzazione della leggenda.
-        const infoLegendState = ref(false);
+        const switchHeatMapShow = ref(false);
         // Dichiarazione delle variabili di visualizzazione della finestra di errore.
         const infoErrorState = ref(false);
         const infoErrorTitle = ref("Errore nella pagina di visualizzazione della home.");
@@ -73,59 +81,66 @@ export default {
         const poiModifyState = ref(false);
         const nodeInfo = ref(null);
       
-        const modifyPOIModal = ref(null);
-
-        // If props.nodeInfo is not null, then the infoBlockComponent is shown.
-        const switchPointOfInterestState = (nodeInfos) => {
-            nodeInfo.value = nodeInfos;
-            infoPointOfInterestState.value = !infoPointOfInterestState.value;
+        const switchShowPOI = () => {
+            emit('switchShowPOI')
         };
-
-        const switchLegend = () => {
-            infoLegendState.value = !infoLegendState.value;
-        };
-
-        const switchPOI = () => {
-            emit('switchPOI')
-        };
-
+        
         const switchAddPOI = () => {
             emit('switchAddPOI')
         };
+        
+        const switchHeatMap = () => {
+            switchHeatMapShow.value = !switchHeatMapShow.value;
+            emit('switchHeatMap')
+        };
 
+        const switchClustering = () => {
+            emit('switchClustering')
+        };
+        
+        // If props.nodeInfo is not null, then the infoBlockComponent is shown.
+        const switchPointOfInterestState = (nodeData) => {
+            nodeInfo.value = nodeData;
+            infoPointOfInterestState.value = !infoPointOfInterestState.value;
+        };
+        
+        const switchPoiModifier = () => {
+            poiModifyState.value = !poiModifyState.value;
+            emit('modifyPOI');
+        };
+        
+        const closeModifyPOIModal = () => {
+            poiModifyState.value = false;
+            infoPointOfInterestState.value = false;
+        };
+        
+        const removePOI = () => {
+            console.log("removePOI");
+            infoPointOfInterestState.value = false;
+        };
+        
         const closeError = () => {
             infoErrorState.value = false;
         };
 
-        const removeSignal = () => {
-            console.log("Passo");
-            emit('removeSignal');
-        };
-
-        const switchPoiModifier = () => {
-            poiModifyState.value = !poiModifyState.value;
-            
-            emit('modifySignal');
-        };
-
-
-
         return {
+            switchHeatMapShow,
+            nodeInfo,
             infoPointOfInterestState,
-            infoLegendState,
+            poiModifyState,
             infoErrorState,
             infoErrorTitle,
             infoErrorMsg,
-            poiModifyState,
-            nodeInfo,
-            modifyPOIModal,
+            switchShowPOI,
+            switchAddPOI,
+            switchHeatMap,
+            switchClustering,
+
+            closeModifyPOIModal,
             switchPointOfInterestState,
-            switchLegend,
-            switchPOI,
             closeError,
-            removeSignal,
+            removePOI,
             switchPoiModifier,
-            switchAddPOI
         };
     },
 };

@@ -11,95 +11,105 @@
                                 Aggiunta di un nuovo punto di interesse</h3>
                             <div class="mt-2">
                                 <form @submit.prevent="addPost">
-                                <div class=" grid grid-cols-none gap-6">
-                                    <div class="flex flex-row gap-6 col-span-6 sm:col-span-4">
+                                    <div class=" grid grid-cols-none gap-6">
+                                        <div class="flex flex-row gap-6 col-span-6 sm:col-span-4">
+                                            <div class="col-span-6 sm:col-span-4">
+                                                <label for="dato-1"
+                                                    class="block pb-2 text-sm font-medium text-gray-700">
+                                                    Nome del punto di interesse:
+                                                </label>
+                                                <input type="text" name="dato-1" id="dato-1"
+                                                    class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
+                                                    placeholder="es. Fontana di Nettuno">
+                                            </div>
+                                            <div class="col-span-6 sm:col-span-4">
+                                                <label for="dato-2"
+                                                    class="block pb-2 text-sm font-medium text-gray-700">
+                                                    Rank del punto di interesse:
+                                                </label>
+                                                <input type="number" name="dato-2" id="dato-2"
+                                                    class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
+                                                    placeholder="es. 0.0">
+                                            </div>
+                                        </div>
+
                                         <div class="col-span-6 sm:col-span-4">
                                             <label for="dato-1" class="block pb-2 text-sm font-medium text-gray-700">
-                                                Nome del punto di interesse:
+                                                Longitudine del punto di interesse:
                                             </label>
-                                            <input type="text" name="dato-1" id="dato-1"
-                                                class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
-                                                placeholder="es. Fontana di Nettuno">
+                                            <label for="dato-1"
+                                                class="block align-middle text-center pb-2 text-sm font-medium text-gray-700">
+                                                {{ coordsNewPOI.lng }}
+                                            </label>
                                         </div>
+
                                         <div class="col-span-6 sm:col-span-4">
-                                            <label for="dato-2" class="block pb-2 text-sm font-medium text-gray-700">
-                                                Rank del punto di interesse:
+                                            <label for="dato-1" class="block pb-2 text-sm font-medium text-gray-700">
+                                                Latitudine del punto di interesse:
                                             </label>
-                                            <input type="number" name="dato-2" id="dato-2"
-                                                class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
-                                                placeholder="es. 0.0">
+                                            <label for="dato-1"
+                                                class="block align-middle text-center pb-2 text-sm font-medium text-gray-700">
+                                                {{ coordsNewPOI.lat }}
+                                            </label>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="py-4 space-y-4">
+                                        <p class="block text-sm font-medium text-gray-700">
+                                            Tipologia di punto di interesse:
+                                        </p>
+                                        <div class="flex items-center">
+                                            <input id="push-tipologia-1" name="push-notifications" type="radio"
+                                                class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
+                                            <label for="push-tipologia-1"
+                                                class="ml-3 block text-sm font-medium text-gray-900">
+                                                Tipologia 1
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="push-tipologia-2" name="push-notifications" type="radio"
+                                                class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
+                                            <label for="push-tipologia-2"
+                                                class="ml-3 block text-sm font-medium text-gray-900">
+                                                Tipologia 2
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="push-tipologia-3" name="push-notifications" type="radio"
+                                                class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
+                                            <label for="push-tipologia-3"
+                                                class="ml-3 block text-sm font-medium text-gray-900">
+                                                Tipologia 3
+                                            </label>
                                         </div>
                                     </div>
-
-                                    <div class="col-span-6 sm:col-span-4">
-                                        <label for="dato-1" class="block pb-2 text-sm font-medium text-gray-700">
-                                            Longitudine del punto di interesse:
-                                        </label>
-                                        <label for="dato-1"
-                                            class="block align-middle text-center pb-2 text-sm font-medium text-gray-700">
-                                            {{ coordsNewPOI.lng }}
-                                        </label>
-                                    </div>
-
-                                    <div class="col-span-6 sm:col-span-4">
-                                        <label for="dato-1" class="block pb-2 text-sm font-medium text-gray-700">
-                                            Latitudine del punto di interesse:
-                                        </label>
-                                        <label for="dato-1"
-                                            class="block align-middle text-center pb-2 text-sm font-medium text-gray-700">
-                                            {{ coordsNewPOI.lat }}
-                                        </label>
-                                    </div>
-
-                            </div>
-
-                            <div class="py-4 space-y-4">
-                                <p class="block text-sm font-medium text-gray-700">
-                                    Tipologia di punto di interesse:
-                                </p>
-                                <div class="flex items-center">
-                                    <input id="push-tipologia-1" name="push-notifications" type="radio"
-                                        class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                    <label for="push-tipologia-1" class="ml-3 block text-sm font-medium text-gray-900">
-                                        Tipologia 1
-                                    </label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input id="push-tipologia-2" name="push-notifications" type="radio"
-                                        class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                    <label for="push-tipologia-2" class="ml-3 block text-sm font-medium text-gray-900">
-                                        Tipologia 2
-                                    </label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input id="push-tipologia-3" name="push-notifications" type="radio"
-                                        class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                    <label for="push-tipologia-3" class="ml-3 block text-sm font-medium text-gray-900">
-                                        Tipologia 3
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="px-4 pb-8 sm:px-6 sm:flex sm:flex-row-reverse">
-                                <button type="submit" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
+                                    <div class="px-4 pb-8 sm:px-6 sm:flex sm:flex-row-reverse">
+                                        <button type="submit" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
                             px-4 py-2 bg-slate-300 text-slate-900 text-base font-medium hover:bg-slate-900
                             hover:text-white sm:ml-3 sm:w-auto
                             sm:text-sm">Inviare</button>
-                                <button @click="$emit('closeAddPOIModal')" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
+                                        <button @click="$emit('closeAddPOIModal')" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
                             px-4 py-2 bg-slate-300 text-slate-900 text-base font-medium hover:bg-slate-900
                             hover:text-white sm:ml-3 sm:w-auto
                             sm:text-sm">Annullare</button>
+                                    </div>
+                                </form>
                             </div>
-                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    </div>
 </template>
 
 <script>
+
+import {
+    baseUri,
+    getToken,
+} from "@/components/js/dataConnection.js";
 
 export default {
     name: 'AddPOIModal',
@@ -126,20 +136,26 @@ export default {
         */
         const addPost = () => {
             console.log("Premuto il bottone di aggiunta di un nuovo POI");
+            console.log(getToken());
+            const myHeaders = new Headers();
+            myHeaders.append('X-API-KEY', getToken());
+            console.log(myHeaders.get('X-API-KEY'));
             var addPOIJSON = new Object();
             addPOIJSON.name = document.getElementById("dato-1").value;
-            addPOIJSON.rank = document.getElementById("dato-2").value;
+            addPOIJSON.rank = parseFloat(document.getElementById("dato-2").value);
             addPOIJSON.category = "Department";
             addPOIJSON.coord = new Object();
-            addPOIJSON.coord.latitude = props.coordsNewPOI.lat;
-            addPOIJSON.coord.longitude = props.coordsNewPOI.lng;
-            console.log(addPOIJSON);
+            addPOIJSON.coord.latitude = parseFloat(props.coordsNewPOI.lat);
+            addPOIJSON.coord.longitude = parseFloat(props.coordsNewPOI.lng);
+            addPOIJSON = JSON.stringify(addPOIJSON);
+            console.debug(addPOIJSON);
             var requestOptions = {
                 method: "POST",
+                headers: myHeaders,
                 body: addPOIJSON
             };
 
-            fetch("http://casadiale.noip.me:62950/admin/newPOI", requestOptions)
+            fetch(baseUri + "admin/newPOI", requestOptions)
                 .then((response) => {
                     console.log(response);
                     switch (response.status) {
