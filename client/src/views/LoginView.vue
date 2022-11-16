@@ -1,16 +1,28 @@
 <template>
     <div class="h-screen relative">
         <!-- 
-            Richiamo alla componente "ErrorModal".
-                -   In caso di errore nella "LoginView" è possibile visualizzare un pop-up di errore.
+            Nel caso di errore (showError) viene mostrato un messaggio di errore, il
+            quale varia in base al tipo di errore (infoErrorTitle e infoErrorMsg).
+            Il messaggio rimane visibile fino a quando l'utente non clicca sul pulsante
+            che richiama l'evento di chiusura (closeError).
         -->
-        <ErrorModal v-if="infoErrorState" @closeError="closeError" :infoErrorTitle="infoErrorTitle"
-            :infoErrorMsg="infoErrorMsg" />
+        <ErrorModal 
+            v-if="showError"
+            @closeError="closeError" 
+            :infoErrorTitle="infoErrorTitle"
+            :infoErrorMsg="infoErrorMsg" 
+        />
         <!-- 
             Richiamo alla componente "LoginModal".
                 -   Gestione del login dall'utente all'applicazione.
         -->
-        <LoginModal @loginPost="loginPost" @login404="login404" />
+        <LoginModal 
+            @loginPost="loginPost" 
+            @login404="login404" 
+            @login400="login400"
+            @login401="login401"
+            @loginErrorGeneric="loginErrorGeneric"
+        />
         <!-- 
             Definizione delle caratteristiche della componente grafica utilizzata 
             per la visualizzazione della mappa.
@@ -20,17 +32,17 @@
 </template>
 
 <script>
-// Import della libreria di leaflet in "LoginView"
+// Import della libreria di leaflet
 import leaflet from "leaflet";
-// Import delle funzioni onMounted e ref di vue in "LoginView"
+// Import delle funzioni onMounted e ref di vue
 import { onMounted, ref } from "vue";
-import router from '@/router'
 // Import delle componenti richiamate nel blocco <template>
 import LoginModal from "@/components/LoginModal.vue";
 import ErrorModal from "@/components/errorModal/genericErrorModal/ErrorModal.vue";
+// Import delle funzioni di reiniderizzazione nel sito
+import router from '@/router'
 
 export default {
-    // Nominativo del component.
     name: 'LoginView',
     // Elenco dei components utilizzati.
     components: {
@@ -41,15 +53,10 @@ export default {
         //  Dichiarazione della variabile map.
         let map;
         //  Dichiarazione delle variabili di visualizzazione della finestra di errore.
-        const infoErrorState = ref(null);
-        const infoErrorTitle = ref("Titolo: Errore default.");
-        const infoErrorMsg = ref("Testo: Errore default.");
+        const showError = ref(null);
+        const infoErrorTitle = ref("Titolo errore");
+        const infoErrorMsg = ref("Corpo errore.");
 
-        /* 
-            onMounted, composition API che permette di eseguire una chiamata quando la componente in 
-            cui è utilizzata è caricata.
-            https://vuejs.org/api/composition-api-lifecycle.html#onmounted
-        */
         onMounted(() => {
             // Inizializzazione della mappa di leaflet con set della view di partenza (Londra).
             map = leaflet.map('map').setView([51.505, -0.09], 12);
@@ -58,9 +65,9 @@ export default {
                 maxZoom: 23,
                 attribution: '© OpenStreetMap'
             }).addTo(map);
-            // Cambio della view con animazione (Bologna).
+            // Cambio della view con set della view di destinazione (Bologna).
             map.flyTo([44.4939, 11.3428], 15, {
-                duration: 40
+                duration: 45
             });
         })
 
@@ -69,17 +76,45 @@ export default {
             router.push({ name: "home" });
         };
 
+        const login400 = () => {
+            infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
+            infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
+            showError.value = true;
+        };
+
+        const login401 = () => {
+            infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
+            infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
+            showError.value = true;
+        };
+
         const login404 = () => {
             infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
             infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
-            infoErrorState.value = true;
+            showError.value = true;
+        };
+
+        const loginErrorGeneric = () => {
+            infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
+            infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
+            showError.value = true;
         };
 
         const closeError = () => {
-            infoErrorState.value = false;
+            showError.value = false;
         };
 
-        return { infoErrorState, infoErrorTitle, infoErrorMsg, login404, loginPost, closeError };
+        return { 
+            showError, 
+            infoErrorTitle, 
+            infoErrorMsg,
+            loginPost,
+            login400, 
+            login401, 
+            login404, 
+            loginErrorGeneric,
+            closeError 
+        };
     }
 }
 </script>
