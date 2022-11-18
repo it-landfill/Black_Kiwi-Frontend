@@ -119,7 +119,8 @@ export default {
         "add400",
         "add401",
         "add404",
-        "addErrorGeneric"
+        "addErrorGeneric",
+        "closeAddPOIModal"
     ],
     setup(props, { emit }) {
 

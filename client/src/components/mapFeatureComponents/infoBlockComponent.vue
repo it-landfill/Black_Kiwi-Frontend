@@ -45,12 +45,17 @@
 
 <script>
 
+import {
+    baseUri,
+    getToken
+} from "@/components/js/dataConnection.js";
+
 export default {
     // Nominativo del component
     name: 'ErrorModal',
     props: ["nodeInfo"],
     emits: ["modifyPOI", "removePOI"],
-    setup(_, { emit }) {
+    setup(props, { emit }) {
 
         const modifyPOI = () => {
             console.log("Premuto il bottone per la modifica di un punto di interesse.");
@@ -64,15 +69,15 @@ export default {
             myHeaders.append('X-API-KEY', getToken());
             console.log(myHeaders.get('X-API-KEY'));
             var deletePOIJSON = new Object();
-            deletePOIJSON.id = nodeInfo.id
+            deletePOIJSON.poiID = props.nodeInfo.id
             console.debug(deletePOIJSON);
             var requestOptions = {
-                method: "POST",
+                method: "DELETE",
                 headers: myHeaders,
                 body: deletePOIJSON
             };
 
-            fetch(baseUri + "admin/newPOI", requestOptions)
+            fetch(baseUri + "admin/deletePOI", requestOptions)
                 .then((response) => {
                     console.log(response);
                     switch (response.status) {

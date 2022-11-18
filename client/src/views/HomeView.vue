@@ -3,32 +3,18 @@
         <!-- 
             Nel caso di errore ...
         -->
-        <GeoErrorModal
-            v-if="geoError" 
-            @closeGeoError="closeGeoError" 
-            :geoErrorMsg="geoErrorMsg" 
-        />
+        <GeoErrorModal v-if="geoError" @closeGeoError="closeGeoError" :geoErrorMsg="geoErrorMsg" />
         <!-- 
             Nella pagina di home è presente un pannello nella parte inferiore a sinistra
             dello schermo. All'interno di questo pannello sono presenti i pulsanti per
             la visualizzazione dei vari layer della mappa, oltre alle informazioni 
             relative all'utente loggato.
         -->
-        <MapFeatures 
-            ref="mapFeatures" 
-            @switchShowPOI="switchShowPOI" 
-            @switchAddPOI="switchAddPOI"
-            @switchHeatMap="switchHeatMap"
-            @switchClustering="switchClustering"
-            :coordsMapFeatures="coords" 
-            :fetchCoordsMapFeatures="fetchCoords"
-        />
+        <MapFeatures ref="mapFeatures" @switchShowPOI="switchShowPOI" @switchAddPOI="switchAddPOI"
+            @switchHeatMap="switchHeatMap" @switchClustering="switchClustering" :coordsMapFeatures="coords"
+            :fetchCoordsMapFeatures="fetchCoords" />
 
-        <AddPOIModal 
-            v-if="addPOIState"
-            @closeAddPOIModal="closeAddPOIModal"
-            :coordsNewPOI="coordsNewPOI"
-        />
+        <AddPOIModal v-if="addPOIState" @closeAddPOIModal="closeAddPOIModal" :coordsNewPOI="coordsNewPOI" />
 
         <div id="map" class="h-full z-[1]" />
     </div>
@@ -86,6 +72,8 @@ import AddPOIModal from "@/components/AddPOIModal.vue";
 import MapFeatures from "@/components/MapFeatures.vue";
 
 import {
+    map,
+    setMap,
     geojsonMarkerOptions,
     geojsonMarkerOptionsHistoricalBuilding,
     geojsonMarkerOptionsPark,
@@ -96,7 +84,7 @@ import {
 } from "@/components/js/dataLeaflet.js"
 
 import {
-	baseUri
+    baseUri
 } from "@/components/js/dataConnection.js";
 
 export default {
@@ -109,8 +97,6 @@ export default {
         AddPOIModal
     },
     setup() {
-        //  Dichiarazione della variabile map.
-        let map;
         // Dichiarazione delle variabili di geolocalizzazione.
         const coords = ref(null);
         const fetchCoords = ref(null);
@@ -133,7 +119,7 @@ export default {
         */
         onMounted(() => {
             // Inizializzazione della mappa di leaflet con i valori di default.
-            map = leaflet.map('map').setView([44.4939, 11.3428], 15);
+            setMap(leaflet.map('map').setView([44.4939, 11.3428], 15));
             // Aggiunta del livello per le tile della mappa
             leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -233,7 +219,7 @@ export default {
                 });
 
         }
-
+        
         // Aggiunta di un punto di interesse
         const switchAddPOI = () => {
             console.log("HomeView - switchAddPOI executed");
@@ -278,21 +264,21 @@ export default {
             console.log("hola");
         };
 
-        return { 
-            coords, 
-            fetchCoords, 
-            geoError, 
-            geoErrorMsg, 
-            addPOIState, 
-            coordsNewPOI, 
-            mapFeatures, 
-            switchShowPOI, 
-            switchAddPOI, 
+        return {
+            coords,
+            fetchCoords,
+            geoError,
+            geoErrorMsg,
+            addPOIState,
+            coordsNewPOI,
+            mapFeatures,
+            switchShowPOI,
+            switchAddPOI,
             switchHeatMap,
             switchClustering,
-            
-            closeAddPOIModal, 
-            closeGeoError, 
+
+            closeAddPOIModal,
+            closeGeoError,
             errorSignal,
         };
     }

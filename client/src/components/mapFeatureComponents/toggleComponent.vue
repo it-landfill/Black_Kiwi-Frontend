@@ -70,6 +70,9 @@
 <script>
 // Import della funzioni ref di vue in "MapFeatures"
 import { ref } from "vue";
+import {
+    map
+} from "@/components/js/dataLeaflet.js"
 export default {
     // Nominativo del component
     name: 'toggleComponent',
@@ -97,6 +100,9 @@ export default {
         const switchHeatMap = () => {
             console.log("toggleComponent - switchHeatMap clicked");
             infoHeatMapState.value = !infoHeatMapState.value;
+            if (!infoHeatMapState.value) {
+                removeHeatMap();
+            }
             emit("switchHeatMap");
         };
 
@@ -105,6 +111,14 @@ export default {
             infoClusteringMapState.value = !infoClusteringMapState.value;
             emit("switchClustering");
         };
+
+        function removeHeatMap() {
+            map.eachLayer(function (layer) {
+                if (layer.options && layer.options.fillColor) {
+                    map.removeLayer(layer);
+                }
+            });
+        }
 
 
         return {

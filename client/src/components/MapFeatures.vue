@@ -104,7 +104,7 @@ export default {
             infoPointOfInterestState.value = !infoPointOfInterestState.value;
         };
         
-        const switchPoiModifier = () => {
+        const modifyPOI = () => {
             poiModifyState.value = !poiModifyState.value;
             emit('modifyPOI');
         };
@@ -135,12 +135,12 @@ export default {
             switchAddPOI,
             switchHeatMap,
             switchClustering,
-
+            modifyPOI,
+            
             closeModifyPOIModal,
             switchPointOfInterestState,
             closeError,
             removePOI,
-            switchPoiModifier,
         };
     },
 };

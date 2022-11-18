@@ -1,5 +1,16 @@
 import leaflet from "leaflet";
 
+
+export let map;
+
+export function setMap(newMap) {
+    map = newMap;
+}
+
+export function getMap() {
+    return map;
+}
+
 // Icon for the marker
 
 export var geojsonMarkerOptions = leaflet.icon({

@@ -75,7 +75,7 @@
                             px-4 py-2 bg-slate-300 text-slate-900 text-base font-medium hover:bg-slate-900
                             hover:text-white sm:ml-3 sm:w-auto
                             sm:text-sm">Inviare</button>
-                                        <button type="submit" @click="$emit('closeLoginError')" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
+                                        <button type="submit" @click="$emit('closeModifyPOIModal')" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
                             px-4 py-2 bg-slate-300 text-slate-900 text-base font-medium hover:bg-slate-900
                             hover:text-white sm:ml-3 sm:w-auto
                             sm:text-sm">Annullare</button>
@@ -156,6 +156,7 @@ export default {
                 })
                 .catch((error) => console.log("error", error));
         }
+     
         return {
             modifyPost
         }

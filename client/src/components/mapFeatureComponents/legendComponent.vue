@@ -8,35 +8,109 @@
             <h1 class="text-xl">
                 Legenda
             </h1>
-            <div class="space-y-2 mx-5 pt-3 flex">
-                <div class="flex items-center justify-between gap-4">
-                    <div class="rounded-md h-8 w-8 bg-red-500 border-4 border-white shadow-lg"></div>
-                    <p> Corri, scappa, c'è il Nemesis! </p>
-                </div>
-            </div>
-            <div class="space-y-2 mx-5 pt-3 flex">
-                <div class="flex items-center justify-between gap-4">
-                    <div class="rounded-md h-8 w-8 bg-orange-500 border-4 border-white shadow-lg"></div>
-                    <p> Oh no!? Anyway... </p>
-                </div>
-            </div>
-            <div class="space-y-2 mx-5 pt-3 flex">
-                <div class="flex items-center justify-between gap-4">
-                    <div class="rounded-md h-8 w-8 bg-yellow-500 border-4 border-white shadow-lg"></div>
-                    <p> Spritz in centro. </p>
-                </div>
-            </div>
-            <div class="space-y-2 mx-5 pt-3 flex">
-                <div class="flex items-center justify-between gap-4">
-                    <div class="rounded-md h-8 w-8 bg-green-500 border-4 border-white shadow-lg"></div>
-                    <p> Dov'è la mia piña colada!? </p>
-                </div>
-            </div>
-
+            <div id="listElments" />
         </div>
     </div>
 </template>
 
 <script>
-export default {};
+// Import della libreria di leaflet in "HomeView"
+import leaflet from "leaflet";
+import {
+    baseUri,
+    getToken
+} from "@/components/js/dataConnection.js";
+import { onMounted } from "vue";
+import {
+    map
+} from "@/components/js/dataLeaflet.js"
+
+export default {
+    name: 'legendComponent',
+    setup() {
+
+        let max;
+
+        onMounted(() => {
+
+            addHeatMap();
+            
+        });
+
+        function getColor(value, max) {
+            //value from 0 to 1
+            var hue = ((1 - value / max) * 120).toString(10);
+            return ["hsl(", hue, ",100%,50%)"].join("");
+        }
+
+        function getMaxDensity(data) {
+            let maxDensity = 0;
+            data.forEach((item) => {
+                if (item.density > maxDensity) {
+                    maxDensity = item.density;
+                }
+            })
+            return maxDensity;
+        }
+
+        async function addHeatMap() {
+            const myHeaders = new Headers();
+            myHeaders.append('X-API-KEY', getToken());
+            let requestOptions = {
+                method: 'GET',
+                headers: myHeaders
+            };
+
+            fetch(baseUri + "admin/getPOIQuartieri", requestOptions)
+                .then(async response => {
+                    const data = await response.json();
+                    const dataFormatted = data.map((item) => {
+                        return {
+                            "name": item.name,
+                            "density": item.density,
+                            "geom": JSON.parse(item.geom)
+                        }
+                    })
+                    console.debug(dataFormatted);
+                    max = getMaxDensity(dataFormatted);
+
+                    dataFormatted.forEach(elem => {
+                        leaflet.geoJson(elem.geom, {
+                            style: function () {
+                                return {
+                                    fillColor: getColor(elem.density, max),
+                                    weight: 2,
+                                    opacity: 0.1,
+                                    color: 'white',
+                                    dashArray: '3',
+                                    fillOpacity: 0.1
+                                };
+                            }
+                        }).addTo(map);
+                        document.querySelector('#listElments').insertAdjacentHTML(
+                            'afterbegin',
+                            `
+                                <div class="space-y-2 mx-5 pt-3 flex">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <div class="rounded-md h-8 w-8 border-4 border-white shadow-lg" style="background-color:`+ getColor(elem.density, max) + `" ></div>
+                                        <p>` + elem.density + `</p>
+                                        </div>
+                                </div>
+                            `
+                        )
+                    })
+                    if (response.status !== 200) {
+                        const error = (data && data.message) || response.status;
+                        return Promise.reject(error);
+                    }
+                })
+                .catch(error => {
+                    console.error("There was an error!", error);
+                });
+              
+        }
+
+        
+    }
+};
 </script>
