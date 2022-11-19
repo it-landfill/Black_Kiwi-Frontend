@@ -22,7 +22,8 @@ import {
 } from "@/components/js/dataConnection.js";
 import { onMounted } from "vue";
 import {
-    map
+    map,
+    layerSelected
 } from "@/components/js/dataLeaflet.js"
 
 export default {
@@ -34,7 +35,7 @@ export default {
         onMounted(() => {
 
             addHeatMap();
-            
+
         });
 
         function getColor(value, max) {
@@ -61,7 +62,24 @@ export default {
                 headers: myHeaders
             };
 
-            fetch(baseUri + "admin/getPOIQuartieri", requestOptions)
+            let endPoint;
+            switch (layerSelected) {
+                case "Distretti":
+                    endPoint = baseUri + "admin/getPOIQuartieri";
+                    break;
+                case "Densità":
+                    endPoint = baseUri + "admin/getPOIQuartieri";
+                    break;
+                case "Check":
+                    endPoint = baseUri + "admin/getCheckinQuartieri";
+                    break;
+
+                default:
+                    console.log("Errore nella formazione dell'endpoint");
+                    break;
+            }
+            console.log(endPoint);
+            fetch(endPoint, requestOptions)
                 .then(async response => {
                     const data = await response.json();
                     const dataFormatted = data.map((item) => {
@@ -107,10 +125,12 @@ export default {
                 .catch(error => {
                     console.error("There was an error!", error);
                 });
-              
+
         }
 
-        
+
+
+
     }
 };
 </script>

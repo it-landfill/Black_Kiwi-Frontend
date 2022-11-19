@@ -167,10 +167,11 @@ export default {
                             },
                             "geometry": {
                                 "type": "Point",
-                                "coordinates": [item.coord.latitude, item.coord.longitude]
+                                "coordinates": [item.coord.longitude, item.coord.latitude]
                             }
                         }
                     })
+                    console.log(dataFormatted);
                     // Add GeoJSON
                     const geojson = leaflet.geoJson(dataFormatted, {
                         pointToLayer: function (feature, latlng) {
@@ -200,8 +201,8 @@ export default {
                                     name: feature.properties.name,
                                     category: feature.properties.category,
                                     rank: feature.properties.rank,
-                                    latitude: feature.geometry.coordinates[0].toFixed(3),
-                                    longitude: feature.geometry.coordinates[1].toFixed(3)
+                                    latitude: feature.geometry.coordinates[1].toFixed(3),
+                                    longitude: feature.geometry.coordinates[0].toFixed(3)
                                 }
                                 console.debug(nodeInfo);
                                 mapFeatures.value.switchPointOfInterestState(nodeInfo);

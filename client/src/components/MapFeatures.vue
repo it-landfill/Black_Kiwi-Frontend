@@ -34,6 +34,7 @@
             @switchAddPOI="switchAddPOI"
             @switchHeatMap="switchHeatMap"
             @switchClustering="switchClustering" 
+            @reloadHeatMap="reloadHeatMap"
         />
     </div>
     <!-- Components di destra -->
@@ -41,7 +42,10 @@
         <!-- 
             Richiamo alla componente "legendComponent".
         -->
-        <legendComponent v-if="switchHeatMapShow" />
+        <legendComponent 
+            ref="legendComponentHeatmap" 
+            v-if="switchHeatMapShow"
+        />
     </div>
 </template>
 
@@ -80,6 +84,7 @@ export default {
         // Dichiarazione delle variabili per la gestione degla richiesta di modifica di un POI.
         const poiModifyState = ref(false);
         const nodeInfo = ref(null);
+        const legendComponentHeatmap = ref(null);
       
         const switchShowPOI = () => {
             emit('switchShowPOI')
@@ -103,6 +108,11 @@ export default {
             nodeInfo.value = nodeData;
             infoPointOfInterestState.value = !infoPointOfInterestState.value;
         };
+
+        const reloadHeatMap = () => {
+            console.log(legendComponentHeatmap)
+            // legendComponentHeatmap.value.addHeatMap();
+        }
         
         const modifyPOI = () => {
             poiModifyState.value = !poiModifyState.value;
@@ -136,7 +146,7 @@ export default {
             switchHeatMap,
             switchClustering,
             modifyPOI,
-            
+            reloadHeatMap,
             closeModifyPOIModal,
             switchPointOfInterestState,
             closeError,

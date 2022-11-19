@@ -2,6 +2,15 @@ import leaflet from "leaflet";
 
 
 export let map;
+export let layerSelected;
+
+export function setLayerSelected(newLayerSelected) {
+  layerSelected = newLayerSelected;
+}
+
+export function getLayerSelected() {
+  return layerSelected;
+}
 
 export function setMap(newMap) {
     map = newMap;

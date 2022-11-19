@@ -51,6 +51,18 @@
                 </div>
             </div>
 
+            <div class="flex space-y-2 mx-5 pt-3 ">
+                <div class="flex items-center justify-between gap-4">
+                    <p>Heatmap selector</p>
+                    <select id="typeHeatMap" @change="selectItem"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <option selected="selected" value="Distretti">Distretti</option>
+                        <option value="Densità">Densità</option>
+                        <option value="Check">Check-in</option>
+                    </select>
+                </div>
+            </div>
+
             <!-- Quarto toggle: Clustering dei dati registrati. -->
             <div class="flex space-y-2 mx-5 pt-3 ">
                 <div class="flex items-center justify-between gap-4">
@@ -71,12 +83,15 @@
 // Import della funzioni ref di vue in "MapFeatures"
 import { ref } from "vue";
 import {
-    map
+    map, 
+    setLayerSelected
 } from "@/components/js/dataLeaflet.js"
+
+
 export default {
     // Nominativo del component
     name: 'toggleComponent',
-    emits: ["switchShowPOI", "switchAddPOI", "switchHeatMap", "switchClustering"],
+    emits: ["switchShowPOI", "switchAddPOI", "switchHeatMap", "switchClustering", "reloadHeatMap"],
     setup(_, { emit }) {
 
         // Dichiarazione delle variabili di visualizzazione della leggenda.
@@ -103,6 +118,7 @@ export default {
             if (!infoHeatMapState.value) {
                 removeHeatMap();
             }
+            selectItem();
             emit("switchHeatMap");
         };
 
@@ -120,12 +136,20 @@ export default {
             });
         }
 
+        const selectItem = () => {
+            var e = document.getElementById("typeHeatMap");
+            setLayerSelected(e.options[e.selectedIndex].value);
+            console.log(e.options[e.selectedIndex].value);
+            emit("reloadHeatMap");
+        }
+
 
         return {
             infoShowPOIState,
             infoHeatMapState,
             infoAddPOIState,
             infoClusteringMapState,
+            selectItem,
             switchShowPOI,
             switchAddPOI,
             switchHeatMap,
