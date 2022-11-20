@@ -5,7 +5,6 @@ import { createRouter, createWebHistory } from "vue-router";
 // Import delle Single-File Components da utilizzare come riferimento per la Vue Router.
 import LoginView from "../views/LoginView.vue";
 import HomeView from "../views/HomeView.vue";
-import HTTP404ErrorView from "../views/HTTP_Error/HTTP404ErrorView.vue";
 
 // Creazione di una routes per l'applicazione.
 // In ogni singola componente sono identificati i seguenti parametri:
@@ -22,11 +21,6 @@ const routes = [
 		path: "/home",
 		name: "home",
 		component: HomeView,
-	},
-	{
-		path: "/404",
-		name: "notFound",
-		component: HTTP404ErrorView,
 	},
 ];
 

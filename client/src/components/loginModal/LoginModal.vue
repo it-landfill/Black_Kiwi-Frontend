@@ -7,10 +7,8 @@
 					class="bg-white rounded-lg text-left overflow-hidden shadow-xl transform sm:my-8 sm:max-w-lg sm:w-full">
 					<div class="px-4 pt-5 pb-5">
 						<div>
-							<img class="mx-auto w-[120px] h-auto" src="../../src/assets/images/black_kiwi.svg" />
-							<h2 class="mt-6 text-center text-3xl font-extrabold text-slate-900">
-								Accedi al tuo account
-							</h2>
+							<img class="mx-auto w-[120px] h-auto" src="../../../src/assets/images/black_kiwi.svg" />
+							<h2 class="mt-6 text-center text-3xl font-extrabold text-slate-900"> Accedi al tuo account </h2>
 						</div>
 
 						<form class="mt-8 space-y-6" @submit.prevent="loginPost">
@@ -42,7 +40,7 @@
 </template>
 
 <script>
-
+// Import funzioni di impostazione per POST e GET al server
 import {
 	baseUri,
 	setToken,
@@ -50,8 +48,9 @@ import {
 
 export default {
 	name: 'LoginModal',
+	components: {},
 	emits: [
-		"loginPost",
+		"loginSuccess",
 		"login400",
 		"login401",
 		"login404",
@@ -59,21 +58,25 @@ export default {
 	],
 	setup(_, { emit }) {
 
+		// Funzione di login dell'utente al server
 		const loginPost = () => {
+			// Acquisizione dei dati inseriti dall'utente
 			var formdata = new FormData();
 			formdata.append("username", document.getElementById("username").value);
 			formdata.append("password", document.getElementById("password").value);
+			// Impostazione del metodo POST e invio dei dati al server
 			var requestOptions = {
 				method: "POST",
 				body: formdata,
 			};
 			fetch(baseUri + "login", requestOptions)
-				.then(async response => {
-					const data = await response.json();
+				.then(response => {
 					switch (response.status) {
 						case 200:
-							setToken(data.token);
-							emit("loginPost");
+							// Se l'utente è stato autenticato correttamente, viene impostato 
+							// il token di sessione (necessario per le richieste successive)
+							setToken(response.json().token);
+							emit("loginSuccess");
 							break;
 						case 400:
 							emit("login400");
@@ -91,7 +94,10 @@ export default {
 				})
 				.catch(() => emit("loginErrorGeneric"));
 		};
-		return { loginPost };
+
+		return { 
+			loginPost 
+		};
 	},
 }
 </script>

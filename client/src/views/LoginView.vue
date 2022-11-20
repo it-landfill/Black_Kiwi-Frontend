@@ -1,13 +1,13 @@
 <template>
     <div class="h-screen relative">
         <!-- 
-            Nel caso di errore (showError) viene mostrato un messaggio di errore, il
+            Nel caso di errore (boolError) viene mostrato un messaggio di errore, il
             quale varia in base al tipo di errore (infoErrorTitle e infoErrorMsg).
             Il messaggio rimane visibile fino a quando l'utente non clicca sul pulsante
             che richiama l'evento di chiusura (closeError).
         -->
         <ErrorModal 
-            v-if="showError"
+            v-if="boolError" 
             @closeError="closeError" 
             :infoErrorTitle="infoErrorTitle"
             :infoErrorMsg="infoErrorMsg" 
@@ -17,11 +17,11 @@
                 -   Gestione del login dall'utente all'applicazione.
         -->
         <LoginModal 
-            @loginPost="loginPost" 
-            @login404="login404" 
-            @login400="login400"
+            @loginSuccess="loginSuccess" 
+            @login400="login400" 
             @login401="login401"
-            @loginErrorGeneric="loginErrorGeneric"
+            @login404="login404" 
+            @loginErrorGeneric="loginErrorGeneric" 
         />
         <!-- 
             Definizione delle caratteristiche della componente grafica utilizzata 
@@ -32,88 +32,93 @@
 </template>
 
 <script>
-// Import della libreria di leaflet
-import leaflet from "leaflet";
-// Import delle funzioni onMounted e ref di vue
+// Import funzioni "onMounted" e "ref" di vue.
 import { onMounted, ref } from "vue";
-// Import delle componenti richiamate nel blocco <template>
-import LoginModal from "@/components/LoginModal.vue";
-import ErrorModal from "@/components/errorModal/genericErrorModal/ErrorModal.vue";
-// Import delle funzioni di reiniderizzazione nel sito
+// Import funzioni di reiniderizzazione nel sito.
 import router from '@/router'
+// Import libreria di leaflet.
+import leaflet from "leaflet";
+// Import componenti richiamate nel blocco <template>.
+import LoginModal from "@/components/loginModal/LoginModal.vue";
+import ErrorModal from "@/components/errorModal/genericErrorModal/ErrorModal.vue";
 
 export default {
     name: 'LoginView',
-    // Elenco dei components utilizzati.
     components: {
         LoginModal,
         ErrorModal
     },
+    emits: [],
     setup() {
-        //  Dichiarazione della variabile map.
-        let map;
-        //  Dichiarazione delle variabili di visualizzazione della finestra di errore.
-        const showError = ref(null);
-        const infoErrorTitle = ref("Titolo errore");
-        const infoErrorMsg = ref("Corpo errore.");
 
+        // La funzione "onMounted" è una funzione di vue che viene richiamata automaticamente
+        // una volta che il componente è stato caricata.
         onMounted(() => {
-            // Inizializzazione della mappa di leaflet con set della view di partenza (Londra).
-            map = leaflet.map('map').setView([51.505, -0.09], 12);
-            // Aggiunta del livello per le tile della mappa
-            leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 23,
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
-            // Cambio della view con set della view di destinazione (Bologna).
-            map.flyTo([44.4939, 11.3428], 15, {
-                duration: 45
-            });
+            // Inizializzazione della mappa di leaflet con il set della view alle cordinate: 
+            //      - Latitudine: 51.505
+            //      - Longitudine: -0.09
+            //      - Zoom: 12
+            // Che corrisponde alla città di Londra.
+            let map = leaflet.map('map', { zoomControl: false }).setView([51.505, -0.09], 10);
+            // Aggiunta alla mappa delle tile di openstreetmap alla mappa di leaflet.
+            leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            // Cambio della mappa di leaflet con il set della view alle cordinate: 
+            //      - Latitudine: 44.4939
+            //      - Longitudine: 11.3428
+            //      - Zoom: 16
+            // Che corrisponde alla città di Bologna.
+            map.flyTo([44.4939, 11.3428], 16, { duration: 70 });
         })
 
-        const loginPost = () => {
-            // Router push per il reindirizzamento alla pagina "HomeView".
+        // In caso di login eseguito con successo viene richiamata la funzione "loginSuccess" che 
+        // permette di reindirizzare l'utente alla pagina principale dell'applicazione.
+        const loginSuccess = () => {
             router.push({ name: "home" });
         };
+
+        // Dichiarazione variabili di visualizzazione della finestra di errore.
+        const boolError = ref(false);
+        const infoErrorTitle = ref("Titolo del messaggio di errore.");
+        const infoErrorMsg = ref("Testo del messaggio di errore.");
 
         const login400 = () => {
             infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
             infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
-            showError.value = true;
+            boolError.value = true;
         };
 
         const login401 = () => {
             infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
             infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
-            showError.value = true;
+            boolError.value = true;
         };
 
         const login404 = () => {
             infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
             infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
-            showError.value = true;
+            boolError.value = true;
         };
 
         const loginErrorGeneric = () => {
             infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
             infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
-            showError.value = true;
+            boolError.value = true;
         };
 
         const closeError = () => {
-            showError.value = false;
+            boolError.value = false;
         };
 
-        return { 
-            showError, 
-            infoErrorTitle, 
+        return {
+            boolError,
+            infoErrorTitle,
             infoErrorMsg,
-            loginPost,
-            login400, 
-            login401, 
-            login404, 
+            loginSuccess,
+            login400,
+            login401,
+            login404,
             loginErrorGeneric,
-            closeError 
+            closeError
         };
     }
 }
