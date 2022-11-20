@@ -70,12 +70,13 @@ export default {
 				body: formdata,
 			};
 			fetch(baseUri + "login", requestOptions)
-				.then(response => {
+				.then(async response => {
+					const data = await response.json();
 					switch (response.status) {
 						case 200:
 							// Se l'utente è stato autenticato correttamente, viene impostato 
 							// il token di sessione (necessario per le richieste successive)
-							setToken(response.json().token);
+							setToken(data.token);
 							emit("loginSuccess");
 							break;
 						case 400:
