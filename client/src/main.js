@@ -14,7 +14,8 @@ import App from "./App.vue";
 import router from "./router";
 // Import nell'applicazione della libreria CSS di Tailwind.
 import "../src/assets/tailwind.css";
+import VueTailwindDatepicker from 'vue-tailwind-datepicker'
 
 // Creazione e caricamento dell'applicazione, dando come root component "App".
 // "use(router)" permette all'applicazione di essere router-aware.
-createApp(App).use(router).mount("#app");
+createApp(App).use(router).use(VueTailwindDatepicker).mount("#app");

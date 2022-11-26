@@ -8,79 +8,82 @@
                     <div class="px-4 pt-5 pb-5 sm:p-6 sm:pb-5">
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                             <h3 class="mt-6 pb-3 text-center text-2xl text-slate-900 font-medium" id="modal-title">
-                                Aggiunta di un nuovo punto di interesse</h3>
+                                Aggiunta di un punto di interesse </h3>
                             <div class="mt-2">
                                 <form @submit.prevent="addPost">
                                     <div class=" grid grid-cols-none gap-6">
                                         <div class="flex flex-row gap-6 col-span-6 sm:col-span-4">
                                             <div class="col-span-6 sm:col-span-4">
-                                                <label for="dato-1"
+                                                <label for="name"
                                                     class="block pb-2 text-sm font-medium text-gray-700">
-                                                    Nome del punto di interesse:
+                                                    Nome del PoI:
                                                 </label>
-                                                <input type="text" name="dato-1" id="dato-1"
+                                                <input type="text" name="name" id="name" required
                                                     class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
                                                     placeholder="es. Fontana di Nettuno">
                                             </div>
                                             <div class="col-span-6 sm:col-span-4">
-                                                <label for="dato-2"
+                                                <label for="rank"
                                                     class="block pb-2 text-sm font-medium text-gray-700">
-                                                    Rank del punto di interesse:
+                                                    Rank del PoI (Opzionale):
                                                 </label>
-                                                <input type="number" name="dato-2" id="dato-2"
+                                                <input type="number" name="rank" id="rank"
                                                     class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm"
                                                     placeholder="es. 0.0">
                                             </div>
                                         </div>
-
                                         <div class="col-span-6 sm:col-span-4">
-                                            <label for="dato-1" class="block pb-2 text-sm font-medium text-gray-700">
-                                                Longitudine del punto di interesse:
+                                            <label class="block pb-2 text-sm font-medium text-gray-700">
+                                                Latitudine e longitudine del PoI:
                                             </label>
-                                            <label for="dato-1"
+                                            <label
                                                 class="block align-middle text-center pb-2 text-sm font-medium text-gray-700">
-                                                {{ coordsNewPOI.lng }}
+                                                ({{ coordsNewPOI.lat }}, {{ coordsNewPOI.lng }})
                                             </label>
                                         </div>
-
-                                        <div class="col-span-6 sm:col-span-4">
-                                            <label for="dato-1" class="block pb-2 text-sm font-medium text-gray-700">
-                                                Latitudine del punto di interesse:
-                                            </label>
-                                            <label for="dato-1"
-                                                class="block align-middle text-center pb-2 text-sm font-medium text-gray-700">
-                                                {{ coordsNewPOI.lat }}
-                                            </label>
-                                        </div>
-
-                                    </div>
+                                   </div>
 
                                     <div class="py-4 space-y-4">
                                         <p class="block text-sm font-medium text-gray-700">
-                                            Tipologia di punto di interesse:
+                                            Tipologia di PoI:
                                         </p>
                                         <div class="flex items-center">
-                                            <input id="push-tipologia-1" name="push-notifications" type="radio"
+                                            <input id="Historical Building" name="category" type="radio" required
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="push-tipologia-1"
+                                            <label for="Historical Building"
                                                 class="ml-3 block text-sm font-medium text-gray-900">
-                                                Tipologia 1
+                                                Historical Building
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="push-tipologia-2" name="push-notifications" type="radio"
+                                            <input id="Park" name="category" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="push-tipologia-2"
-                                                class="ml-3 block text-sm font-medium text-gray-900">
-                                                Tipologia 2
+                                            <label for="Park" class="ml-3 block text-sm font-medium text-gray-900">
+                                                Park
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="push-tipologia-3" name="push-notifications" type="radio"
+                                            <input id="Theater" name="category" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="push-tipologia-3"
+                                            <label for="Theater"
                                                 class="ml-3 block text-sm font-medium text-gray-900">
-                                                Tipologia 3
+                                                Theater
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="Museum" name="category" type="radio"
+                                                class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
+                                            <label for="Museum"
+                                                class="ml-3 block text-sm font-medium text-gray-900">
+                                                Museum
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input id="Department" name="category" type="radio"
+                                                class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
+                                            <label for="Department"
+                                                class="ml-3 block text-sm font-medium text-gray-900">
+                                                Department
                                             </label>
                                         </div>
                                     </div>
@@ -142,9 +145,11 @@ export default {
             myHeaders.append('X-API-KEY', getToken());
             console.log(myHeaders.get('X-API-KEY'));
             var addPOIJSON = new Object();
-            addPOIJSON.name = document.getElementById("dato-1").value;
-            addPOIJSON.rank = parseFloat(document.getElementById("dato-2").value);
-            addPOIJSON.category = "Department";
+            addPOIJSON.name = document.getElementById("name").value;
+            if (document.getElementById("rank").value != "") {
+                addPOIJSON.rank = parseFloat(document.getElementById("rank").value);
+            }
+            addPOIJSON.category = document.querySelector('input[name="category"]:checked').id;
             addPOIJSON.coord = new Object();
             addPOIJSON.coord.latitude = parseFloat(props.coordsNewPOI.lat);
             addPOIJSON.coord.longitude = parseFloat(props.coordsNewPOI.lng);

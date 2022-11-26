@@ -5,7 +5,7 @@
                 {{ nodeInfo.name }}
             </h1>
             <p class="mt-1 max-w-2xl pb-2 text-sm text-gray-500">
-                Indetificativo univoco: {{ nodeInfo.id }}
+                Indetificativo: {{ nodeInfo.id }}
             </p>
             <div class="border-y border-gray-200">
                 <dl class="py-3 space-y-2">
@@ -58,31 +58,25 @@ export default {
     setup(props, { emit }) {
 
         const modifyPOI = () => {
-            console.log("Premuto il bottone per la modifica di un punto di interesse.");
+            console.log("infoBlockComponent - modifyPOI clicked");
             emit("modifyPOI");
         };
 
         const removePOI = () => {
-            console.log("Premuto il bottone di eliminazione di un POI");
-            console.log(getToken());
+            console.log("infoBlockComponent - removePOI clicked");
+            // Impostazione del token per l'autenticazione
             const myHeaders = new Headers();
             myHeaders.append('X-API-KEY', getToken());
-            console.log(myHeaders.get('X-API-KEY'));
-            var deletePOIJSON = new Object();
-            deletePOIJSON.poiID = props.nodeInfo.id
-            console.debug(deletePOIJSON);
+            // Impostazione del metodo DELETE e invio dei dati al server
             var requestOptions = {
                 method: "DELETE",
                 headers: myHeaders,
-                body: deletePOIJSON
             };
-
-            fetch(baseUri + "admin/deletePOI", requestOptions)
+            fetch(baseUri + "admin/deletePOI?poiID=" + props.nodeInfo.id, requestOptions)
                 .then((response) => {
-                    console.log(response);
                     switch (response.status) {
                         case 200:
-                            console.log("POI eliminato con successo");
+                            console.log("infoBlockComponent - removePOI - 200");
                             emit("removePOI");
                             break;
                         case 400:

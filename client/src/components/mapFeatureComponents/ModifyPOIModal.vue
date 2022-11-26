@@ -13,18 +13,18 @@
                                 <form @submit.prevent="modifyPost">
                                     <div class="grid grid-cols-6 gap-6">
                                         <div class="col-span-6 sm:col-span-4">
-                                            <label for="Nome" class="block pb-2 text-sm font-medium text-gray-700">
+                                            <label for="name" class="block pb-2 text-sm font-medium text-gray-700">
                                                 Nome
                                             </label>
-                                            <input type="text" name="Nome" id="Nome"
+                                            <input type="text" name="name" id="name"
                                                 class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm">
                                         </div>
 
                                         <div class="col-span-6 sm:col-span-4">
-                                            <label for="Rank" class="block pb-2 text-sm font-medium text-gray-700">
+                                            <label for="rank" class="block pb-2 text-sm font-medium text-gray-700">
                                                 Rank
                                             </label>
-                                            <input type="number" name="Rank" id="Rank"
+                                            <input type="number" name="rank" id="rank"
                                                 class="appearance-none rounded-md relative block w-full px-3 py-2 border border-slate-300 placeholder-slate-500 text-slate-900 focus:outline-none focus:ring-slate-600 focus:border-slate-600 focus:z-[8] sm:text-sm">
                                         </div>
                                     </div>
@@ -35,7 +35,7 @@
                                         </p>
 
                                         <div class="flex items-center">
-                                            <input id="Historical Building" name="push-notifications" type="radio"
+                                            <input id="Historical Building" name="category" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
                                             <label for="Historical Building"
                                                 class="ml-3 block text-sm font-medium text-gray-900"> Historical
@@ -43,27 +43,27 @@
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Park" name="push-notifications" type="radio"
+                                            <input id="Park" name="category" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
                                             <label for="Park" class="ml-3 block text-sm font-medium text-gray-900"> Park
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Theater" name="push-notifications" type="radio"
+                                            <input id="Theater" name="category" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
                                             <label for="Theater" class="ml-3 block text-sm font-medium text-gray-900">
                                                 Theater
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Museum" name="push-notifications" type="radio"
+                                            <input id="Museum" name="category" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
                                             <label for="Museum" class="ml-3 block text-sm font-medium text-gray-900">
                                                 Museum
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Department" name="push-notifications" type="radio"
+                                            <input id="Department" name="category" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
                                             <label for="Department"
                                                 class="ml-3 block text-sm font-medium text-gray-900"> Department
@@ -75,7 +75,7 @@
                             px-4 py-2 bg-slate-300 text-slate-900 text-base font-medium hover:bg-slate-900
                             hover:text-white sm:ml-3 sm:w-auto
                             sm:text-sm">Inviare</button>
-                                        <button type="submit" @click="$emit('closeModifyPOIModal')" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
+                                        <button @click="$emit('closeModifyPOIModal')" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
                             px-4 py-2 bg-slate-300 text-slate-900 text-base font-medium hover:bg-slate-900
                             hover:text-white sm:ml-3 sm:w-auto
                             sm:text-sm">Annullare</button>
@@ -91,72 +91,93 @@
 </template>
 
 <script>
-
+// Import funzioni "onMounted" di vue.
 import { onMounted } from "vue";
+// Import funzioni di impostazione per POST e GET al server.
+import {
+    baseUri,
+    getToken,
+} from "@/components/js/dataConnection.js";
 
 export default {
-    // Nominativo del component
     name: 'ModifyPOIModal',
-    props: ["nodeInfo"],
-    emits: [
-        "closeModifyPOIModal"
+	components: {},
+    props: [
+        "nodeInfo"
     ],
-    setup(props, {emit}) {
+    emits: [
+        "closeModifyPOIModal",
+        "closePostModifyPOIModal"
+    ],
+    setup(props, { emit }) {
 
+        // La funzione "onMounted" è una funzione di vue che viene richiamata automaticamente
+        // una volta che il componente è stato caricata.
         onMounted(() => {
-            document.getElementById("Nome").setAttribute("value", props.nodeInfo.name);
-            document.getElementById("Rank").setAttribute("value", props.nodeInfo.rank);
+            // Impostazione dei dati relativi al PoI selezionato.
+            document.getElementById("name").setAttribute("value", props.nodeInfo.name);
+            document.getElementById("rank").setAttribute("value", props.nodeInfo.rank);
             document.getElementById(props.nodeInfo.category).setAttribute("checked", true);
         });
 
+        // Funzione di mofica dei dati relativi ad un PoI selezionato.
         const modifyPost = () => {
-            console.log("Premuto il bottone di aggiunta di un nuovo POI");
-            console.log(props.nodeInfo);
+            // Impostazione dell'header della richiesta di modifica.
+            const myHeaders = new Headers();
+            myHeaders.append('X-API-KEY', getToken());
+            // Acquisizione dei dati relativi al PoI selezionato.
             var addPOIJSON = new Object();
             addPOIJSON.id = props.nodeInfo.id;
-            addPOIJSON.name = document.getElementById("Nome").value;
-            addPOIJSON.rank = document.getElementById("Rank").value;
-            addPOIJSON.category = document.getElementById(props.nodeInfo.category).id;
+            addPOIJSON.name = document.getElementById("name").value;
+            addPOIJSON.rank = parseFloat(document.getElementById("rank").value);
+            addPOIJSON.category = document.querySelector('input[name="category"]:checked').id;
             addPOIJSON.coord = new Object();
-            addPOIJSON.coord.latitude = props.nodeInfo.latitude;
-            addPOIJSON.coord.longitude = props.nodeInfo.longitude;
-            console.debug(addPOIJSON);
+            addPOIJSON.coord.latitude = parseFloat(props.nodeInfo.latitude);
+            addPOIJSON.coord.longitude = parseFloat(props.nodeInfo.longitude);
+            addPOIJSON = JSON.stringify(addPOIJSON);
+            // Impostazione del metodo POST e invio dei dati al server
             var requestOptions = {
                 method: "POST",
+                headers: myHeaders,
                 body: addPOIJSON
             };
-
-            fetch("http://casadiale.noip.me:62950/admin/newPOI", requestOptions)
+            fetch(baseUri + "admin/editPOI", requestOptions)
                 .then((response) => {
-                    console.log(response);
                     switch (response.status) {
                         case 200:
-                            console.log("POI aggiunto con successo");
-                            emit("closeModifyPOIModal");
+                            // Se la richiesta di modifica termina con successo vengono aggiornati 
+                            // in locale i dati relativi al PoI modificato.
+                            emit(
+                                "closePostModifyPOIModal", 
+                                document.getElementById("name").value, 
+                                parseFloat(document.getElementById("rank").value), 
+                                document.querySelector('input[name="category"]:checked').id
+                            );
                             break;
                         case 400:
-                            console.log("Bad request.");
-                            // emit("login400");
                             emit("closeModifyPOIModal");
+                            // emit("login400");
                             break;
                         case 401:
-                            console.log("Authorization information is missing or invalid.");
-                            // emit("login401");
                             emit("closeModifyPOIModal");
+                            // emit("login401");
                             break;
                         case 404:
-                            console.log("A user with the specified ID was not found.");
-                            // emit("login404");
                             emit("closeModifyPOIModal");
+                            // emit("login404");
                             break;
                         default:
-                            console.log("Errore sconosciuto.");
+                            emit("closeModifyPOIModal");    
+                            emit("loginErrorGeneric");
                             break;
                     }
                 })
-                .catch((error) => console.log("error", error));
+                .catch(() => {
+                    emit("closeModifyPOIModal");    
+                    emit("loginErrorGeneric")
+                });
         }
-     
+
         return {
             modifyPost
         }

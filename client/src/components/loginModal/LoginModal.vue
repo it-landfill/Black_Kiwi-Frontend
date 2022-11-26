@@ -40,10 +40,11 @@
 </template>
 
 <script>
-// Import funzioni di impostazione per POST e GET al server
+// Import funzioni di impostazione per POST e GET al server.
 import {
 	baseUri,
 	setToken,
+	setUsername
 } from "@/components/js/dataConnection.js";
 
 export default {
@@ -77,6 +78,7 @@ export default {
 							// Se l'utente è stato autenticato correttamente, viene impostato 
 							// il token di sessione (necessario per le richieste successive)
 							setToken(data.token);
+							setUsername(data.username);
 							emit("loginSuccess");
 							break;
 						case 400:
