@@ -3,7 +3,8 @@
     <div class="w-full max-w-[375px] min-h-[93%] absolute z-[4] flex flex-col top-[50px] left-[70px] bg-trasparent">
 
         <toggleComponent @switchShowPOI="switchShowPOI" @switchAddPOI="switchAddPOI" @switchHeatMap="switchHeatMap"
-            @switchClustering="switchClustering" @reloadHeatMap="reloadHeatMap" @showAddPOIModal="showAddPOIModal" />
+            @switchClustering="switchClustering" @reloadHeatMap="reloadHeatMap" @showAddPOIModal="showAddPOIModal"
+            @addCategory="addCategory" @removeCategory="removeCategory" />
 
         <infoBlockComponent v-if="infoPointOfInterestState" @modifyPOI="modifyPOI" @removePOI="removePOI"
             :nodeInfo="nodeInfo" />
@@ -17,12 +18,11 @@
 
         <ErrorModal v-if="infoErrorState" @closeError="closeError" :infoErrorTitle="infoErrorTitle"
             :infoErrorMsg="infoErrorMsg" />
-            
+
     </div>
 
     <!-- Components di destra -->
-    <div
-        class="w-full max-w-[375px] min-h-[93%] absolute z-[4] flex flex-col top-[50px] right-[70px] bg-trasparent"
+    <div class="w-full max-w-[375px] min-h-[93%] absolute z-[4] flex flex-col top-[50px] right-[70px] bg-trasparent"
         v-if="switchHeatMapShow">
         <legendComponent />
     </div>
@@ -73,7 +73,7 @@ export default {
 
         // Dichiarazione delle variabili di visualizzazione della leggenda.
         const infoPointOfInterestState = ref(false);
-        let marker = ref(null);
+        let marker;
         var nodeInfo = ref(
             {
                 id: "_",
@@ -139,6 +139,29 @@ export default {
                 resetNodeInfo()
                 infoPointOfInterestState.value = !infoPointOfInterestState.value;
             }
+        };
+
+        const removeCategory = (category) => {
+            map.eachLayer(function (layer) {
+                if (layer.feature && layer.feature.properties.category === category) {
+                    map.removeLayer(layer);
+                }
+            });
+        };
+
+        const addCategory = (category) => {
+            // filter markers by category
+            console.log(category);
+            // console.debug(marker._layers["246"].feature.properties.category);
+
+            marker.eachLayer(function (layer) {
+                console.debug(layer.feature.properties.category);
+                if (layer.feature && layer.feature.properties.category === category) {
+                    map.addLayer(layer);
+                }
+            });
+
+            
         };
 
         const modifyPOI = () => {
@@ -247,7 +270,9 @@ export default {
             reloadHeatMap,
             closeModifyPOIModal,
             closeError,
-            removePOI
+            removePOI,
+            addCategory,
+            removeCategory
         };
     },
 };

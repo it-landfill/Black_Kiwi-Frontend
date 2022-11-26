@@ -31,30 +31,34 @@
                 </div>
             </div>
 
-
             <div class="flex-col space-y-2 mx-8 pt-3 " v-if="showSelectPOI">
                 <div class="flex items-center gap-7">
-                    <input id="Historical Building" name="category" type="checkbox"
+                    <input id="Historical Building" name="category" type="checkbox" checked="checked"
+                        value="Historical Building" @change="checkEvent($event, 'Historical Building')"
                         class="w-6 h-6 focus:ring-slate-600 text-slate-600 border-gray-300 accent-slate-600">
                     <p for="Historical Building" class="text-slate-700"> Historical Building </p>
                 </div>
                 <div class="flex items-center gap-7">
-                    <input id="Park" name="category" type="checkbox"
+                    <input id="Park" name="category" type="checkbox" checked="checked" value="Park"
+                        @change="checkEvent($event, 'Park')"
                         class="w-6 h-6 focus:ring-slate-600 text-slate-600 border-gray-300 accent-slate-600">
                     <p for="Park" class="text-slate-700"> Park </p>
                 </div>
                 <div class="flex items-center gap-7">
-                    <input id="Theater" name="category" type="checkbox"
+                    <input id="Theater" name="category" type="checkbox" checked="checked" value="Theater"
+                        @change="checkEvent($event, 'Theater')"
                         class="w-6 h-6 focus:ring-slate-600 text-slate-600 border-gray-300 accent-slate-600">
                     <p for="Theater" class="text-slate-700"> Theater </p>
                 </div>
                 <div class="flex items-center gap-7">
-                    <input id="Museum" name="category" type="checkbox"
+                    <input id="Museum" name="category" type="checkbox" checked="checked" value="Museum"
+                        @change="checkEvent($event, 'Museum')"
                         class="w-6 h-6 focus:ring-slate-600 text-slate-600 border-gray-300 accent-slate-600">
                     <p for="Museum" class="text-slate-700"> Museum </p>
                 </div>
                 <div class="flex items-center gap-7">
-                    <input id="Department" name="category" type="checkbox"
+                    <input id="Department" name="category" type="checkbox" checked="checked" value="Department"
+                        @change="checkEvent($event, 'Department')"
                         class="w-6 h-6 focus:ring-slate-600 text-slate-600 border-gray-300 accent-slate-600">
                     <p for="Department" class="text-slate-700"> Department </p>
                 </div>
@@ -127,7 +131,7 @@
 
 <script>
 // Import funzioni "ref" di vue.
-import { ref, onUpdated } from "vue";
+import { ref, onUpdated, nextTick } from "vue";
 // Import funzioni di gestione della mappa.
 import {
     map,
@@ -153,7 +157,9 @@ export default {
         "switchHeatMap",
         "switchClustering",
         "showAddPOIModal",
-        "reloadHeatMap"
+        "reloadHeatMap",
+        "addCategory",
+        "removeCategory"
     ],
     setup(_, { emit }) {
 
@@ -192,6 +198,7 @@ export default {
                                 // aggiornare la mappa.
                                 setPointOfInterest(dataFormatted);
                                 showSelectPOI.value = true;
+                                getCheckBoxElem()
                                 emit("switchShowPOI");
                                 break;
                             case 400:
@@ -221,6 +228,27 @@ export default {
             }
             eventEmitted = 1;
         };
+
+        let selectedCboxesId = [];
+
+        async function checkEvent(event, idCheckBox) {
+            if (event.target.checked) {
+                selectedCboxesId.push(idCheckBox);
+                emit("addCategory", idCheckBox);
+            } else {
+                selectedCboxesId = selectedCboxesId.filter((item) => item !== idCheckBox);
+                emit("removeCategory", idCheckBox);
+            }
+        }
+
+        async function getCheckBoxElem() {
+            await nextTick();
+            // Get all selected options
+            const checkboxes = document.getElementsByName("category");
+            const selectedCboxes = Array.prototype.slice.call(checkboxes).filter(ch => ch.checked == true);
+            // Get only the id 
+            selectedCboxesId = selectedCboxes.map(ch => ch.id);
+        }
 
         const infoShowUser = ref(false);
         const switchShowUser = () => {
@@ -350,7 +378,8 @@ export default {
             switchShowPOI,
             switchAddPOI,
             switchHeatMap,
-            switchClustering
+            switchClustering,
+            checkEvent
         };
     },
 };
