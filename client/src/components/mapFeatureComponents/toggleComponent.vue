@@ -164,8 +164,33 @@ export default {
     setup(_, { emit }) {
 
         const logout = () => {
-            removeToken();
-            router.push({ name: 'login' });
+            var requestOptions = {
+                method: "POST",
+            };
+            fetch(baseUri + "logout", requestOptions)
+                .then(async response => {
+                    await response.json();
+                    switch (response.status) {
+                        case 200:
+                            removeToken();
+                            router.push({ name: 'login' });
+                            break;
+                        case 400:
+                            emit("login400");
+                            break;
+                        case 401:
+                            emit("login401");
+                            break;
+                        case 404:
+                            emit("login404");
+                            break;
+                        default:
+                            emit("loginErrorGeneric");
+                            break;
+                    }
+                })
+                .catch(() => emit("loginErrorGeneric"));
+
         }
 
         let eventEmitted = 0;
