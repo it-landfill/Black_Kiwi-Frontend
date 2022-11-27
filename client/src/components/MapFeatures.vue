@@ -150,18 +150,11 @@ export default {
         };
 
         const addCategory = (category) => {
-            // filter markers by category
-            console.log(category);
-            // console.debug(marker._layers["246"].feature.properties.category);
-
             marker.eachLayer(function (layer) {
-                console.debug(layer.feature.properties.category);
                 if (layer.feature && layer.feature.properties.category === category) {
                     map.addLayer(layer);
                 }
             });
-
-            
         };
 
         const modifyPOI = () => {
@@ -173,24 +166,65 @@ export default {
             nodeInfo.value.rank = rank;
             nodeInfo.value.category = category;
             poiModifyState.value = false;
-            // Aggiornamento 
+            // Update from marker variable
+            marker.eachLayer(function (layer) {
+                if (layer.feature && layer.feature.properties.id === nodeInfo.value.id) {
+                    layer.feature.properties.name = name;
+                    layer.feature.properties.rank = rank;
+                    layer.feature.properties.category = category;
+                }
+            });
+            // Update from map
+            map.eachLayer(function (layer) {
+                if (layer.feature && layer.feature.properties.id === nodeInfo.value.id) {
+                    layer.feature.properties.name = name;
+                    layer.feature.properties.rank = rank;
+                    layer.feature.properties.category = category;
+                    switch (category) {
+                        case "Historical Building":
+                            layer.setIcon(geojsonMarkerOptionsHistoricalBuilding);
+                            break;
+                        case "Park":
+                            layer.setIcon(geojsonMarkerOptionsPark);
+                            break;
+                        case "Theater":
+                            layer.setIcon(geojsonMarkerOptionsTheater);
+                            break;
+                        case "Museum":
+                            layer.setIcon(geojsonMarkerOptionsMuseum);
+                            break;
+                        case "Department":
+                            layer.setIcon(geojsonMarkerOptionsDepartment);
+                            break;
+                        default:
+                            layer.setIcon(geojsonMarkerOptions);
+                    }
+                    let customPopup = generatorPopupInfo(layer.feature);
+                    layer.bindPopup(customPopup.content, customPopup.style);
+                }
+            });
+
         };
 
         const closeModifyPOIModal = () => {
             poiModifyState.value = false;
         };
 
-        const removePOI = () => {
-            nodeInfo = ref(
-                {
-                    id: "_",
-                    name: "_",
-                    category: "_",
-                    rank: "_",
-                    latitude: "_",
-                    longitude: "_"
+        const removePOI = (id) => {
+            // Remove from map
+            marker.eachLayer(function (layer) {
+                if (layer.feature && layer.feature.properties.id === id) {
+                    map.removeLayer(layer);
                 }
-            );
+            });
+            // Remove from marker variable
+            marker.eachLayer(function (layer) {
+                if (layer.feature && layer.feature.properties.id === id) {
+                    marker.removeLayer(layer);
+                }
+            });
+
+            resetNodeInfo();
         };
 
         const addPOIState = ref(false);
@@ -198,12 +232,10 @@ export default {
 
         const showAddPOIModal = (coordsNewPOIs) => {
             coordsNewPOI.value = coordsNewPOIs._rawValue;
-            console.log("showAddPOIModal");
             addPOIState.value = !addPOIState.value;
         };
 
         const closeAddPOIModal = () => {
-            console.log("HomeView - closeAddPOIModal executed");
             addPOIState.value = false;
         }
 

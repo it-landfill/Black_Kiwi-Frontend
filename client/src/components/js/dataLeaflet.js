@@ -152,22 +152,22 @@ export function generatorPopupInfo(feature) {
   //+ " <br/> " + feature.properties.district;
   switch (feature.properties.category) {
     case "Historical Building":
-      customPopup.style = { 'className': 'HistoricalBuilding', 'minWidth': '75', };
+      customPopup.style = { 'className': 'HistoricalBuilding', closeButton: false};
       break;
     case "Park":
-      customPopup.style = { 'className': 'Park', 'minWidth': '75', };
+      customPopup.style = { 'className': 'Park', closeButton: false};
       break;
     case "Theater":
-      customPopup.style = { 'className': 'Theater', 'minWidth': '75', };
+      customPopup.style = { 'className': 'Theater', closeButton: false};
       break;
     case "Museum":
-      customPopup.style = { 'className': 'Museum', 'minWidth': '75', };
+      customPopup.style = { 'className': 'Museum', closeButton: false};
       break;
     case "Department":
-      customPopup.style = { 'className': 'Department', 'minWidth': '75', };
+      customPopup.style = { 'className': 'Department', closeButton: false};
       break;
     default:
-      customPopup.style = { 'className': 'Default', 'minWidth': '75', };
+      customPopup.style = { 'className': 'Default', closeButton: false};
       break;
   }
   return customPopup;

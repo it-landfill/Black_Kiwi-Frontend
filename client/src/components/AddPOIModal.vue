@@ -48,7 +48,7 @@
                                             Tipologia di PoI:
                                         </p>
                                         <div class="flex items-center">
-                                            <input id="Historical Building" name="category" type="radio" required
+                                            <input id="Historical Building" name="categoryAdd" type="radio" required
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
                                             <label for="Historical Building"
                                                 class="ml-3 block text-sm font-medium text-gray-900">
@@ -56,14 +56,14 @@
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Park" name="category" type="radio"
+                                            <input id="Park" name="categoryAdd" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
                                             <label for="Park" class="ml-3 block text-sm font-medium text-gray-900">
                                                 Park
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Theater" name="category" type="radio"
+                                            <input id="Theater" name="categoryAdd" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
                                             <label for="Theater"
                                                 class="ml-3 block text-sm font-medium text-gray-900">
@@ -71,7 +71,7 @@
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Museum" name="category" type="radio"
+                                            <input id="Museum" name="categoryAdd" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
                                             <label for="Museum"
                                                 class="ml-3 block text-sm font-medium text-gray-900">
@@ -79,7 +79,7 @@
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Department" name="category" type="radio"
+                                            <input id="Department" name="categoryAdd" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
                                             <label for="Department"
                                                 class="ml-3 block text-sm font-medium text-gray-900">
@@ -127,17 +127,6 @@ export default {
     ],
     setup(props, { emit }) {
 
-        /*
-            {
-                "name": "Museo Medievale",
-                "rank": 10.2,
-                "category": "Department",
-                "coord": {
-                    "latitude": 11.343083381652832,
-                    "longitude": 44.49433189374523
-                }
-            }         
-        */
         const addPost = () => {
             console.log("Premuto il bottone di aggiunta di un nuovo POI");
             console.log(getToken());
@@ -149,12 +138,11 @@ export default {
             if (document.getElementById("rank").value != "") {
                 addPOIJSON.rank = parseFloat(document.getElementById("rank").value);
             }
-            addPOIJSON.category = document.querySelector('input[name="category"]:checked').id;
+            addPOIJSON.category = document.querySelector('input[name="categoryAdd"]:checked').id;
             addPOIJSON.coord = new Object();
             addPOIJSON.coord.latitude = parseFloat(props.coordsNewPOI.lat);
             addPOIJSON.coord.longitude = parseFloat(props.coordsNewPOI.lng);
             addPOIJSON = JSON.stringify(addPOIJSON);
-            console.debug(addPOIJSON);
             var requestOptions = {
                 method: "POST",
                 headers: myHeaders,
@@ -167,7 +155,7 @@ export default {
                     switch (response.status) {
                         case 200:
                             console.log("POI aggiunto con successo");
-                            emit("closeAddPOIModal");
+                            emit("closeAddPOIModal", addPOIJSON);
                             break;
                         case 400:
                             console.log("Bad request.");

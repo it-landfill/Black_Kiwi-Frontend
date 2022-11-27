@@ -35,37 +35,41 @@
                                         </p>
 
                                         <div class="flex items-center">
-                                            <input id="Historical Building" name="category" type="radio"
+                                            <input id="Historical Building Modifier" name="categoryModifier"
+                                                type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="Historical Building"
+                                            <label for="Historical Building Modifier"
                                                 class="ml-3 block text-sm font-medium text-gray-900"> Historical
                                                 Building
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Park" name="category" type="radio"
+                                            <input id="Park Modifier" name="categoryModifier" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="Park" class="ml-3 block text-sm font-medium text-gray-900"> Park
+                                            <label for="Park Modifier"
+                                                class="ml-3 block text-sm font-medium text-gray-900"> Park
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Theater" name="category" type="radio"
+                                            <input id="Theater Modifier" name="categoryModifier" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="Theater" class="ml-3 block text-sm font-medium text-gray-900">
+                                            <label for="Theater Modifier"
+                                                class="ml-3 block text-sm font-medium text-gray-900">
                                                 Theater
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Museum" name="category" type="radio"
+                                            <input id="Museum Modifier" name="categoryModifier" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="Museum" class="ml-3 block text-sm font-medium text-gray-900">
+                                            <label for="Museum Modifier"
+                                                class="ml-3 block text-sm font-medium text-gray-900">
                                                 Museum
                                             </label>
                                         </div>
                                         <div class="flex items-center">
-                                            <input id="Department" name="category" type="radio"
+                                            <input id="Department Modifier" name="categoryModifier" type="radio"
                                                 class="w-6 h-6 focus:ring-slate-900 text-slate-900 border-gray-300 accent-slate-900">
-                                            <label for="Department"
+                                            <label for="Department Modifier"
                                                 class="ml-3 block text-sm font-medium text-gray-900"> Department
                                             </label>
                                         </div>
@@ -101,7 +105,7 @@ import {
 
 export default {
     name: 'ModifyPOIModal',
-	components: {},
+    components: {},
     props: [
         "nodeInfo"
     ],
@@ -117,7 +121,7 @@ export default {
             // Impostazione dei dati relativi al PoI selezionato.
             document.getElementById("name").setAttribute("value", props.nodeInfo.name);
             document.getElementById("rank").setAttribute("value", props.nodeInfo.rank);
-            document.getElementById(props.nodeInfo.category).setAttribute("checked", true);
+            document.getElementById(props.nodeInfo.category + " Modifier").setAttribute("checked", true);
         });
 
         // Funzione di mofica dei dati relativi ad un PoI selezionato.
@@ -126,15 +130,17 @@ export default {
             const myHeaders = new Headers();
             myHeaders.append('X-API-KEY', getToken());
             // Acquisizione dei dati relativi al PoI selezionato.
-            var addPOIJSON = new Object();
-            addPOIJSON.id = props.nodeInfo.id;
-            addPOIJSON.name = document.getElementById("name").value;
-            addPOIJSON.rank = parseFloat(document.getElementById("rank").value);
-            addPOIJSON.category = document.querySelector('input[name="category"]:checked').id;
-            addPOIJSON.coord = new Object();
-            addPOIJSON.coord.latitude = parseFloat(props.nodeInfo.latitude);
-            addPOIJSON.coord.longitude = parseFloat(props.nodeInfo.longitude);
-            addPOIJSON = JSON.stringify(addPOIJSON);
+            var formData = new Object();
+            formData.id = props.nodeInfo.id;
+            formData.name = document.getElementById("name").value;
+            formData.rank = parseFloat(document.getElementById("rank").value);
+            formData.category = document.querySelector('input[name="categoryModifier"]:checked').id;
+            formData.category = formData.category.substring(0, formData.category.length - 9);
+            formData.coord = new Object();
+            formData.coord.latitude = parseFloat(props.nodeInfo.latitude);
+            formData.coord.longitude = parseFloat(props.nodeInfo.longitude);
+            let addPOIJSON = JSON.stringify(formData);
+
             // Impostazione del metodo POST e invio dei dati al server
             var requestOptions = {
                 method: "POST",
@@ -148,10 +154,10 @@ export default {
                             // Se la richiesta di modifica termina con successo vengono aggiornati 
                             // in locale i dati relativi al PoI modificato.
                             emit(
-                                "closePostModifyPOIModal", 
-                                document.getElementById("name").value, 
-                                parseFloat(document.getElementById("rank").value), 
-                                document.querySelector('input[name="category"]:checked').id
+                                "closePostModifyPOIModal",
+                                formData.name,
+                                formData.rank,
+                                formData.category
                             );
                             break;
                         case 400:
@@ -167,13 +173,13 @@ export default {
                             // emit("login404");
                             break;
                         default:
-                            emit("closeModifyPOIModal");    
+                            emit("closeModifyPOIModal");
                             emit("loginErrorGeneric");
                             break;
                     }
                 })
                 .catch(() => {
-                    emit("closeModifyPOIModal");    
+                    emit("closeModifyPOIModal");
                     emit("loginErrorGeneric")
                 });
         }

@@ -77,7 +77,7 @@ export default {
                     switch (response.status) {
                         case 200:
                             console.log("infoBlockComponent - removePOI - 200");
-                            emit("removePOI");
+                            emit("removePOI", props.nodeInfo.id);
                             break;
                         case 400:
                             console.log("Bad request.");
