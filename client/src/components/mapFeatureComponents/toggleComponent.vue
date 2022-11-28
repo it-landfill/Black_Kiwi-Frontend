@@ -136,6 +136,7 @@ import { ref, onUpdated, nextTick } from "vue";
 import {
     map,
     setPointOfInterest,
+    setUserLocation,
     setLayerSelected
 } from "@/components/js/dataLeaflet.js"
 // Import funzioni di impostazione per POST e GET al server.
@@ -143,6 +144,8 @@ import {
     username,
     baseUri,
     poisFormat,
+    userFormat,
+    getToken,
     removeToken
 } from "@/components/js/dataConnection.js"
 // Import funzioni di reiniderizzazione nel sito.
@@ -159,7 +162,8 @@ export default {
         "showAddPOIModal",
         "reloadHeatMap",
         "addCategory",
-        "removeCategory"
+        "removeCategory",
+        "switchShowUser"
     ],
     setup(_, { emit }) {
 
@@ -279,22 +283,28 @@ export default {
         const switchShowUser = () => {
             infoShowUser.value = !infoShowUser.value;
             if (infoShowUser.value) {
+                // Impostazione dell'header della richiesta di modifica.
+                const myHeaders = new Headers();
+                myHeaders.append('X-API-KEY', getToken());
                 // Impostazione del metodo POST e invio dei dati al server
                 let requestOptions = {
                     method: 'GET',
-                    redirect: 'follow'
+                    headers: myHeaders,
                 };
 
-                fetch(baseUri + "users", requestOptions)
+                fetch(baseUri + "admin/getRequestLocations", requestOptions)
                     .then(async response => {
                         const data = await response.json();
+                        const dataFormatted = data.map((item) => {
+                            return userFormat(item);
+                        })
                         switch (response.status) {
                             case 200:
                                 // Se la richiesta è andata a buon fine, vengono elaborati
                                 // i dati ricevuti dal server e viene emesso il segnale per
                                 // aggiornare la mappa.
-                                // setPointOfInterest(data);
-                                // emit("switchShowUser");
+                                setUserLocation(dataFormatted);
+                                emit("switchShowUser");
                                 break;
                             case 400:
                                 console.log("Errore 400: " + data.message);
@@ -318,7 +328,7 @@ export default {
             } else {
                 // Se il toggle è stato disattivato, viene emesso il segnale per
                 // rimuovere i POI dalla mappa.
-                // emit("switchShowUser");
+                emit("switchShowUser");
             }
             eventEmitted = 1;
         };
@@ -343,7 +353,6 @@ export default {
                 map.off('click');
             }
             eventEmitted = 1;
-            emit("switchAddPOI");
         };
 
         const infoHeatMapState = ref(false);

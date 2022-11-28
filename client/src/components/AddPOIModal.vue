@@ -123,7 +123,8 @@ export default {
         "add401",
         "add404",
         "addErrorGeneric",
-        "closeAddPOIModal"
+        "closeAddPOIModal",
+        "closeAddPOIModalSuccess"
     ],
     setup(props, { emit }) {
 
@@ -142,11 +143,11 @@ export default {
             addPOIJSON.coord = new Object();
             addPOIJSON.coord.latitude = parseFloat(props.coordsNewPOI.lat);
             addPOIJSON.coord.longitude = parseFloat(props.coordsNewPOI.lng);
-            addPOIJSON = JSON.stringify(addPOIJSON);
+            let dataJSON = JSON.stringify(addPOIJSON);
             var requestOptions = {
                 method: "POST",
                 headers: myHeaders,
-                body: addPOIJSON
+                body: dataJSON
             };
 
             fetch(baseUri + "admin/newPOI", requestOptions)
@@ -155,7 +156,8 @@ export default {
                     switch (response.status) {
                         case 200:
                             console.log("POI aggiunto con successo");
-                            emit("closeAddPOIModal", addPOIJSON);
+                            addPOIJSON.id = response.headers.get("id");
+                            emit("closeAddPOIModalSuccess", addPOIJSON);
                             break;
                         case 400:
                             console.log("Bad request.");

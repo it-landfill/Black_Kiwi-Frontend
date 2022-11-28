@@ -2,14 +2,15 @@
     <!-- Components di sinistra -->
     <div class="w-full max-w-[375px] min-h-[93%] absolute z-[4] flex flex-col top-[50px] left-[70px] bg-trasparent">
 
-        <toggleComponent @switchShowPOI="switchShowPOI" @switchAddPOI="switchAddPOI" @switchHeatMap="switchHeatMap"
-            @switchClustering="switchClustering" @reloadHeatMap="reloadHeatMap" @showAddPOIModal="showAddPOIModal"
-            @addCategory="addCategory" @removeCategory="removeCategory" />
+        <toggleComponent @switchShowPOI="switchShowPOI" @switchAddPOI="switchAddPOI" @switchShowUser="switchShowUser"
+            @switchHeatMap="switchHeatMap" @switchClustering="switchClustering" @reloadHeatMap="reloadHeatMap"
+            @showAddPOIModal="showAddPOIModal" @addCategory="addCategory" @removeCategory="removeCategory" />
 
         <infoBlockComponent v-if="infoPointOfInterestState" @modifyPOI="modifyPOI" @removePOI="removePOI"
             :nodeInfo="nodeInfo" />
 
-        <AddPOIModal v-if="addPOIState" @closeAddPOIModal="closeAddPOIModal" :coordsNewPOI="coordsNewPOI" />
+        <AddPOIModal v-if="addPOIState" @closeAddPOIModal="closeAddPOIModal" :coordsNewPOI="coordsNewPOI"
+            @closeAddPOIModalSuccess="closeAddPOIModalSuccess" />
 
         <ModifyPOIModal ref="modifyPOIModal" v-if="poiModifyState" @closePostModifyPOIModal="closePostModifyPOIModal"
             @closeModifyPOIModal="closeModifyPOIModal" :nodeInfo="nodeInfo" />
@@ -39,13 +40,21 @@ import infoBlockComponent from "./mapFeatureComponents/infoBlockComponent.vue";
 import {
     map,
     pointOfInterest,
+    userLocation,
     geojsonMarkerOptions,
     geojsonMarkerOptionsHistoricalBuilding,
     geojsonMarkerOptionsPark,
     geojsonMarkerOptionsTheater,
     geojsonMarkerOptionsMuseum,
     geojsonMarkerOptionsDepartment,
-    generatorPopupInfo
+    generatorPopupInfo,
+    geojsonMarkerOptionsUserBlack,
+    geojsonMarkerOptionsUserBlue,
+    geojsonMarkerOptionsUserGreen,
+    geojsonMarkerOptionsUserOrange,
+    geojsonMarkerOptionsUserPurple,
+    geojsonMarkerOptionsUserRed,
+    generatorPopupUserInfo
 } from "@/components/js/dataLeaflet.js"
 
 import toggleComponent from "./mapFeatureComponents/toggleComponent.vue";
@@ -98,7 +107,7 @@ export default {
 
         const switchShowPOI = () => {
             if (!infoPointOfInterestState.value) {
-                const geojson = leaflet.geoJson(pointOfInterest, {
+                marker = leaflet.geoJson(pointOfInterest, {
                     // Impostazione dello stile dei marker.
                     pointToLayer: function (feature, latlng) {
                         switch (feature.properties.category) {
@@ -132,13 +141,47 @@ export default {
                         });
                     }
                 }).addTo(map);
-                marker = geojson;
                 infoPointOfInterestState.value = !infoPointOfInterestState.value;
             } else {
                 map.removeLayer(marker);
                 resetNodeInfo()
                 infoPointOfInterestState.value = !infoPointOfInterestState.value;
             }
+        };
+
+        const infoUserLocationState = ref(false);
+        let userMarker;
+        const switchShowUser = () => {
+            if (!infoUserLocationState.value) {
+                const geojson = leaflet.geoJson(userLocation, {
+                    // Impostazione dello stile dei marker.
+                    pointToLayer: function (feature, latlng) {
+                        switch (feature.properties.category) {
+                            case "Historical Building":
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsUserBlue });
+                            case "Park":
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsUserGreen });
+                            case "Theater":
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsUserRed });
+                            case "Museum":
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsUserPurple });
+                            case "Department":
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsUserBlack });
+                            default:
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsUserOrange });
+                        }
+                    },
+                    // Impostazione del popup.
+                    onEachFeature: function (feature, layer) {
+                        let customPopup = generatorPopupUserInfo(feature);
+                        layer.bindPopup(customPopup.content, customPopup.style);
+                    }
+                }).addTo(map);
+                userMarker = geojson;
+            } else {
+                map.removeLayer(userMarker);
+            }
+            infoUserLocationState.value = !infoUserLocationState.value;
         };
 
         const removeCategory = (category) => {
@@ -239,13 +282,64 @@ export default {
             addPOIState.value = false;
         }
 
+        const closeAddPOIModalSuccess = (obj) => {
+            addPOIState.value = false;
+            if (infoPointOfInterestState.value) {
+                const newPOI = {
+                    "type": "Feature",
+                    "properties": {
+                        "name": obj.name,
+                        "id": obj.id,
+                        "category": obj.category,
+                        "rank": obj.rank,
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [obj.coord.longitude, obj.coord.latitude]
+                    }
+                };
+                marker.addLayer(leaflet.geoJson(newPOI, {
+                    // Impostazione dello stile dei marker.
+                    pointToLayer: function (feature, latlng) {
+                        switch (feature.properties.category) {
+                            case "Historical Building":
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsHistoricalBuilding });
+                            case "Park":
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsPark });
+                            case "Theater":
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsTheater });
+                            case "Museum":
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsMuseum });
+                            case "Department":
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptionsDepartment });
+                            default:
+                                return leaflet.marker(latlng, { icon: geojsonMarkerOptions });
+                        }
+                    },
+                    // Impostazione del popup.
+                    onEachFeature: function (feature, layer) {
+                        let customPopup = generatorPopupInfo(feature);
+                        layer.bindPopup(customPopup.content, customPopup.style);
+                        // Aggiunta di un listener per la gestione del click sul marker.
+                        layer.on('click', function () {
+                            // Impostazione dello stato di visualizzazione del blocco di informazioni.
+                            nodeInfo.value.name = feature.properties.name;
+                            nodeInfo.value.id = feature.properties.id;
+                            nodeInfo.value.category = feature.properties.category;
+                            nodeInfo.value.rank = feature.properties.rank;
+                            nodeInfo.value.latitude = feature.geometry.coordinates[1].toFixed(6);
+                            nodeInfo.value.longitude = feature.geometry.coordinates[0].toFixed(6);
+                        });
+                    }
+                }).addTo(map));
+            }
+        };
+
         const switchClusteringShow = ref(false);
 
         const switchClustering = () => {
             switchClusteringShow.value = !switchClusteringShow.value;
         };
-
-
 
         // Dichiarazione delle variabili di visualizzazione della leggenda.
         const switchHeatMapShow = ref(false);
@@ -259,8 +353,7 @@ export default {
 
 
         const switchAddPOI = () => {
-
-
+            console.log("switchAddPOI - yo");
         };
 
         const switchHeatMap = () => {
@@ -304,7 +397,9 @@ export default {
             closeError,
             removePOI,
             addCategory,
-            removeCategory
+            removeCategory,
+            switchShowUser,
+            closeAddPOIModalSuccess
         };
     },
 };
