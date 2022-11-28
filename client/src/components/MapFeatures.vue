@@ -15,7 +15,8 @@
         <ModifyPOIModal ref="modifyPOIModal" v-if="poiModifyState" @closePostModifyPOIModal="closePostModifyPOIModal"
             @closeModifyPOIModal="closeModifyPOIModal" :nodeInfo="nodeInfo" />
 
-        <clusterModal v-if="switchClusteringShow" />
+        <clusterModal v-if="switchClusteringShow"  @closeClusterModal="closeClusterModal"
+            @closeAddClusterSuccess="closeAddClusterSuccess"/>
 
         <ErrorModal v-if="infoErrorState" @closeError="closeError" :infoErrorTitle="infoErrorTitle"
             :infoErrorMsg="infoErrorMsg" />
@@ -36,6 +37,11 @@ import { ref } from "vue";
 import leaflet from "leaflet";
 // Import delle componenti richiamate nel blocco <template>
 import infoBlockComponent from "./mapFeatureComponents/infoBlockComponent.vue";
+// Import funzioni di impostazione per POST e GET al server.
+import {
+    baseUri,
+    getToken
+} from "@/components/js/dataConnection.js";
 // Import funzioni di gestione della mappa.
 import {
     map,
@@ -54,7 +60,8 @@ import {
     geojsonMarkerOptionsUserOrange,
     geojsonMarkerOptionsUserPurple,
     geojsonMarkerOptionsUserRed,
-    generatorPopupUserInfo
+    generatorPopupUserInfo,
+    layerSelected
 } from "@/components/js/dataLeaflet.js"
 
 import toggleComponent from "./mapFeatureComponents/toggleComponent.vue";
@@ -341,6 +348,15 @@ export default {
             switchClusteringShow.value = !switchClusteringShow.value;
         };
 
+        const closeClusterModal = () => {
+            switchClusteringShow.value = false;
+        };
+
+        const closeAddClusterSuccess = () => {
+            switchClusteringShow.value = false;
+        };
+
+
         // Dichiarazione delle variabili di visualizzazione della leggenda.
         const switchHeatMapShow = ref(false);
         // Dichiarazione delle variabili di visualizzazione della finestra di errore.
@@ -363,11 +379,147 @@ export default {
 
 
         const reloadHeatMap = () => {
+            console.log("reloadHeatMap - yo", layerSelected);
+            map.eachLayer(function (layer) {
+                if (layer.options && layer.options.fillColor) {
+                    map.removeLayer(layer);
+                }
+            });
+            // Remove legend 
+            addHeatMap();
+        };
 
-            // legendComponentHeatmap.value.addHeatMap();
+        let max;
+
+        function getColor(value, max) {
+            //value from 0 to 1
+            var hue = ((1 - value / max) * 120).toString(10);
+            return ["hsl(", hue, ",100%,50%)"].join("");
         }
 
+        function onHighlightFeature(e) {
+            document.getElementById("overRegion").textContent = "Distretto: " + e.target.feature.properties.name;
 
+            var layer = e.target;
+            layer.setStyle({
+                weight: 4,
+                dashArray: '',
+                fillOpacity: 0.5
+            });
+            layer.bringToFront();
+        }
+
+        function offHighlightFeature(e) {
+            document.getElementById("overRegion").textContent = "Distretto: _";
+            e.target.setStyle({
+                weight: 2,
+                opacity: 0.75,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.2
+            });
+        }
+
+        function zoomToFeature(e) {
+            map.fitBounds(e.target.getBounds());
+        }
+
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: onHighlightFeature,
+                mouseout: offHighlightFeature,
+                click: zoomToFeature
+            });
+            
+        }
+
+        let dataFormatted;
+
+        async function addHeatMap() {
+            // Impostazione dell'header della richiesta di modifica.
+            const myHeaders = new Headers();
+            myHeaders.append('X-API-KEY', getToken());
+            // Impostazione del metodo GET e invio dei dati al server
+            let requestOptions = {
+                method: 'GET',
+                headers: myHeaders
+            };
+            // Impostazione dell'endpoint della richiesta.
+            let endPoint;
+
+            switch (layerSelected) {
+                case "Distretti":
+                    endPoint = baseUri + "admin/getQuartieri";
+                    break;
+                case "Densità":
+                    endPoint = baseUri + "admin/getPOIQuartieri";
+                    break;
+                case "Check":
+                    endPoint = baseUri + "admin/getRequestQuartieri";
+                    break;
+                default:
+                    console.log("Errore nella formazione dell'endpoint");
+                    break;
+            }
+            fetch(endPoint, requestOptions)
+                .then(async response => {
+                    const data = await response.json();
+                    switch (response.status) {
+                        case 200:
+                            dataFormatted = JSON.parse(data);
+                            // Ordinamento dei dati in base alla value.
+                            dataFormatted.features.sort((a, b) => (a.properties.value < b.properties.value) ? 1 : -1);
+                            // Calcolo del massimo.
+                            max = dataFormatted.features.reduce((max, p) => p.properties.value > max ? p.properties.value : max).properties.value;
+                            // Impostazione dello stile e del comportamento della mappa.
+                            dataFormatted.features.forEach(elem => {
+                                leaflet.geoJSON(elem, {
+                                    style: function () {
+                                        return {
+                                            fillColor: getColor(elem.properties.value, max),
+                                            weight: 2,
+                                            opacity: 0.75,
+                                            color: 'white',
+                                            dashArray: '3',
+                                            fillOpacity: 0.2
+                                        };
+                                    },
+                                    onEachFeature: onEachFeature
+                                }).addTo(map);
+                            });
+
+                            // Eliminazione degli elementi "duplicati" dalla lista.
+                            dataFormatted.features = [...new Map(dataFormatted.features.map((m) => [m.properties.value, m])).values()];
+                            document.querySelector('#listElments').innerHTML = "";
+                            // Creazione della legenda.
+                            dataFormatted.features.forEach(elem => {
+                                document.querySelector('#listElments').insertAdjacentHTML(
+                                    'afterbegin',
+                                    `
+                                <div class="space-y-2 mx-5 pt-3 flex">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <div class="rounded-md h-8 w-8 border-4 border-white shadow-lg" style="background-color:`+ getColor(elem.properties.value, max) + `" ></div>
+                                        <p>` + elem.properties.value + `</p>
+                                        </div>
+                                </div>
+                            `
+                                )
+                            })
+                            break;
+                        case 401:
+                            console.log("Errore nella richiesta: " + data.message);
+                            break;
+                        default:
+                            console.log("Errore nella richiesta: " + data.message);
+                            break;
+                    }
+                })
+                .catch(error => {
+                    console.log("There was an error!");
+                    console.log(error);
+                });
+
+        }
 
         const closeError = () => {
             infoErrorState.value = false;
@@ -399,7 +551,9 @@ export default {
             addCategory,
             removeCategory,
             switchShowUser,
-            closeAddPOIModalSuccess
+            closeAddPOIModalSuccess,
+            closeClusterModal,
+            closeAddClusterSuccess,
         };
     },
 };

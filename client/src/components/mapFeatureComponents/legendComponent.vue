@@ -80,6 +80,9 @@ export default {
             });
         }
 
+ 
+        
+
         let dataFormatted;
 
         async function addHeatMap() {
@@ -93,16 +96,16 @@ export default {
             };
             // Impostazione dell'endpoint della richiesta.
             let endPoint;
+
             switch (layerSelected) {
                 case "Distretti":
-                    // TODO: Aggiungere endpoint per distretti.
-                    endPoint = baseUri + "admin/getPOIQuartieri";
+                    endPoint = baseUri + "admin/getQuartieri";
                     break;
                 case "Densità":
                     endPoint = baseUri + "admin/getPOIQuartieri";
                     break;
                 case "Check":
-                    endPoint = baseUri + "admin/getCheckinQuartieri";
+                    endPoint = baseUri + "admin/getRequestQuartieri";
                     break;
                 default:
                     console.log("Errore nella formazione dell'endpoint");

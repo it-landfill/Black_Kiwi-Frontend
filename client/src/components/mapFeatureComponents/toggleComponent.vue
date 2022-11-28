@@ -381,7 +381,10 @@ export default {
         onUpdated(() => {
             if (eventEmitted == 0) {
                 if (!infoHeatMapState.value) removeHeatMap();
-                else selectItem();
+                else {
+                    let e = document.getElementById("typeHeatMap");
+                    setLayerSelected(e.options[e.selectedIndex].value);
+                }
                 emit("switchHeatMap");
             }
         })
@@ -391,9 +394,9 @@ export default {
         const infoClusteringMapState = ref(false);
 
         const switchClustering = () => {
-            console.log("toggleComponent - switchClustering clicked");
             infoClusteringMapState.value = !infoClusteringMapState.value;
             emit("switchClustering");
+            eventEmitted = 1;
         };
 
         return {

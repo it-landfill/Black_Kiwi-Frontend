@@ -1,6 +1,6 @@
 
-export const baseUri = "http://localhost:8080/";
-// export const baseUri = "http://casadiale.noip.me:62950/";
+// export const baseUri = "http://localhost:8080/";
+export const baseUri = "http://casadiale.noip.me:62950/";
 // export const baseUri = "http://192.168.0.2:8080/";
 
 export var username;
