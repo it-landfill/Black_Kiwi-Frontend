@@ -23,54 +23,54 @@
             <div class="flex space-y-2 mx-5 pt-3 ">
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex aspect-square items-center align-middle shadow-md rounded-md px-4 bg-white cursor-pointer"
-                        :class="{ 'bg-slate-600': infoShowPOIState }" @click="switchShowPOI">
+                        :class="{ 'bg-slate-600': showPoI }" @click="getInfoPoIData">
                         <i class="fas fa-location-arrow text-state-600 text-[18px]"
-                            :class="{ 'text-white': infoShowPOIState }"></i>
+                            :class="{ 'text-white': showPoI }"></i>
                     </div>
                     <p> Visualizzazione punti di interesse. </p>
                 </div>
             </div>
 
-            <div class="flex-col space-y-2 mx-8 pt-3 " v-if="showSelectPOI">
+            <div class="flex-col space-y-2 mx-8 pt-3 " v-if="showSelectorPoi">
                 <div class="flex items-center gap-7">
                     <input id="Historical Building" name="category" type="checkbox" checked="checked"
-                        value="Historical Building" @change="checkEvent($event, 'Historical Building')"
+                        value="Historical Building" @change="selectorPushPop($event, 'Historical Building')"
                         class="w-6 h-6 focus:ring-slate-600 text-slate-600 border-gray-300 accent-slate-600">
                     <p for="Historical Building" class="text-slate-700"> Historical Building </p>
                 </div>
                 <div class="flex items-center gap-7">
                     <input id="Park" name="category" type="checkbox" checked="checked" value="Park"
-                        @change="checkEvent($event, 'Park')"
+                        @change="selectorPushPop($event, 'Park')"
                         class="w-6 h-6 focus:ring-slate-600 text-slate-600 border-gray-300 accent-slate-600">
                     <p for="Park" class="text-slate-700"> Park </p>
                 </div>
                 <div class="flex items-center gap-7">
                     <input id="Theater" name="category" type="checkbox" checked="checked" value="Theater"
-                        @change="checkEvent($event, 'Theater')"
+                        @change="selectorPushPop($event, 'Theater')"
                         class="w-6 h-6 focus:ring-slate-600 text-slate-600 border-gray-300 accent-slate-600">
                     <p for="Theater" class="text-slate-700"> Theater </p>
                 </div>
                 <div class="flex items-center gap-7">
                     <input id="Museum" name="category" type="checkbox" checked="checked" value="Museum"
-                        @change="checkEvent($event, 'Museum')"
+                        @change="selectorPushPop($event, 'Museum')"
                         class="w-6 h-6 focus:ring-slate-600 text-slate-600 border-gray-300 accent-slate-600">
                     <p for="Museum" class="text-slate-700"> Museum </p>
                 </div>
                 <div class="flex items-center gap-7">
                     <input id="Department" name="category" type="checkbox" checked="checked" value="Department"
-                        @change="checkEvent($event, 'Department')"
+                        @change="selectorPushPop($event, 'Department')"
                         class="w-6 h-6 focus:ring-slate-600 text-slate-600 border-gray-300 accent-slate-600">
                     <p for="Department" class="text-slate-700"> Department </p>
                 </div>
             </div>
 
-            <!-- Secondo toggle: Visualizzazione punti di interesse. -->
+            <!-- Secondo toggle: Visualizzazione utenti -->
             <div class="flex space-y-2 mx-5 pt-3 ">
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex aspect-square items-center align-middle shadow-md rounded-md px-4 bg-white cursor-pointer"
-                        :class="{ 'bg-slate-600': infoShowUser }" @click="switchShowUser">
+                        :class="{ 'bg-slate-600': showUser.value }" @click="getInfoLocationUser">
                         <i class="fa-solid fa-street-view text-state-600 text-[18px]"
-                            :class="{ 'text-white': infoShowUser }"></i>
+                            :class="{ 'text-white': showUser.value }"></i>
                     </div>
                     <p> Visualizzazione delle richieste effettuate dagli utenti. </p>
                 </div>
@@ -117,7 +117,7 @@
             <div class="flex space-y-2 mx-5 pt-3 ">
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex aspect-square items-center align-middle shadow-md rounded-md px-4 bg-white cursor-pointer"
-                        :class="{ 'bg-slate-600': infoClusteringMapState }" @click="switchClustering">
+                        :class="{ 'bg-slate-600': infoClusteringMapState }" @click="showClusterModal">
                         <i class="fa-solid fa-circle-nodes text-state-600 text-[18px]"
                             :class="{ 'text-white': infoClusteringMapState }"></i>
                     </div>
@@ -135,8 +135,7 @@ import { ref, onUpdated, nextTick } from "vue";
 // Import funzioni di gestione della mappa.
 import {
     map,
-    setPointOfInterest,
-    setUserLocation,
+    setPoIData,
     setLayerSelected
 } from "@/components/js/dataLeaflet.js"
 // Import funzioni di impostazione per POST e GET al server.
@@ -144,8 +143,6 @@ import {
     username,
     baseUri,
     poisFormat,
-    userFormat,
-    getToken,
     removeToken
 } from "@/components/js/dataConnection.js"
 // Import funzioni di reiniderizzazione nel sito.
@@ -153,19 +150,155 @@ import router from '@/router'
 
 export default {
     name: 'toggleComponent',
+    props: [
+        "showUser" 
+    ],
     components: {},
     emits: [
-        "switchShowPOI",
-        "switchAddPOI",
+        "getInfoPoIData",
         "switchHeatMap",
-        "switchClustering",
-        "showAddPOIModal",
+        "showClusterModal",
+        "showAddModal",
         "reloadHeatMap",
-        "addCategory",
-        "removeCategory",
-        "switchShowUser"
+        "checkPoICategory",
+        "uncheckPoICategory",
+        "getInfoLocationUser",
+        "showError",
+        "showUserModal",
+        "closeUserModal"
     ],
-    setup(_, { emit }) {
+    setup(props, { emit }) {
+
+        //////////////////////////// FUNZIONI PER LA GESTIONE DELLA VISUALIZZAZIONE PoI /////////////////////////////
+
+        // Variabile di stato per la gestione dei toggle relativo alla visualizzazione dei PoI.
+        const showPoI = ref(false);
+        // Variabile di stato per la gestione dei toggle relativo alla visualizzazione del selettore 
+        // per le categorie dei PoI.
+        const showSelectorPoi = ref(false);
+        // Variabile di stato per la gestione per le categorie di PoI da visualizzare sulla mappa.
+        let selectedCategoryPoI = [];
+        // Variabile di memorizzazione dei dati ottenuti dal server.
+        let dataRaw;
+        let dataFormatted;
+
+        // Funzione di acquisizione dei dati relativi ai PoI.
+        const getInfoPoIData = () => {
+            if (!showPoI.value) {
+                // Impostazione del metodo GET e invio dei dati al server
+                let requestOptions = {
+                    method: 'GET',
+                    redirect: 'follow'
+                };
+                let titleError;
+                let messageError;
+                fetch(baseUri + "pois", requestOptions)
+                    .then(async response => {
+                        switch (response.status) {
+                            case 200:
+                                // Se la richiesta è andata a buon fine, vengono elaborati
+                                // i dati ricevuti dal server e viene emesso il segnale per
+                                // aggiornare la mappa.
+                                dataRaw = await response.json();
+                                dataFormatted = dataRaw.map((item) => {
+                                    return poisFormat(item);
+                                })
+                                showPoI.value = true;
+                                showSelectorPoi.value = true;
+                                // Memorizzazione dei dati ottenuti dal server.
+                                setPoIData(dataFormatted);
+                                // Inizializzazione delle categorie dei PoI visualizzate
+                                initSelectorPoI();
+                                // Cambio stato del toggle.
+                                emit("getInfoPoIData");
+                                break;
+                            case 400:
+                                titleError = "Errore 400 - Richiesta errata";
+                                messageError = "La richiesta non è stata eseguita a causa di un errore sintattico.";
+                                emit("showError", titleError, messageError);
+                                break;
+                            case 500:
+                                titleError = "Errore 500 - Server Error";
+                                messageError = "Si è verificato un errore interno al server. Riprovare più tardi.";
+                                emit("showError", titleError, messageError);
+                                break;
+                            default:
+                                titleError = "Errore sconosciuto";
+                                messageError = "Si è verificato un errore sconosciuto. Riprovare più tardi.";
+                                emit("showError", titleError, messageError);
+                                break;
+                        }
+                    })
+                    .catch(() => emit("loginErrorGeneric"));
+            } else {
+                // Se il toggle è stato disattivato, viene emesso il segnale per rimuovere i POI dalla mappa.
+                showPoI.value = false;
+                showSelectorPoi.value = false;
+                emit("getInfoPoIData");
+            }
+
+            eventEmitted = 1;
+        };
+
+        // Inizializzazione dei dati relativi alle categorie selezionate per la visualizzazione dei PoI.
+        async function initSelectorPoI() {
+            await nextTick();
+            // Ottenimento e formattazione dei dati relativi alle categorie dei PoI da HTML.
+            const checkBoxDataRaw = document.getElementsByName("category");
+            const selectedCheckBoxData = Array.prototype.slice.call(checkBoxDataRaw).filter(ch => ch.checked == true);
+            // Filtro delle informazioni. 
+            selectedCategoryPoI = selectedCheckBoxData.map(checkboxElem => checkboxElem.id);
+        }
+
+        // Funzione di aggiornamento dei dati relativi alle categorie selezionate per la visualizzazione dei PoI.
+        async function selectorPushPop(event, idCheckBox) {
+            await nextTick();
+            // Aggiunta o rimozione della categoria selezionata o deselezionata dalla lista.
+            if (event.target.checked) {
+                selectedCategoryPoI.push(idCheckBox);
+                emit("checkPoICategory", idCheckBox);
+            } else {
+                selectedCategoryPoI = selectedCategoryPoI.filter((item) => item !== idCheckBox);
+                emit("uncheckPoICategory", idCheckBox);
+            }
+        }
+
+        //////////////////// FUNZIONI PER LA GESTIONE DELLE POSIZIONI UTENTI ///////////////////////
+
+        // Funzione di acquisizione dei dati relativi alla posizione degli utenti.
+        const getInfoLocationUser = () => {
+            if(!props.showUser) emit("showUserModal");
+            else emit("closeUserModal");
+            eventEmitted = 1;
+        };
+
+        //////////////////// FUNZIONI PER LA GESTIONE DELL'AGGIUNTA DEI PoI ///////////////////////
+
+        const coordsNewPOI = ref({ lat: null, lng: null });
+        const addPOIState = ref(false);
+
+        const switchAddPOI = () => {
+            infoAddPOIState.value = !infoAddPOIState.value;
+            if (infoAddPOIState.value) {
+                document.getElementById('map').style.cursor = 'crosshair'
+                map.on('click',
+                    function (event) {
+                        var coord = event.latlng.toString().split(',');
+                        coordsNewPOI.value.lat = coord[0].split('(')[1];
+                        coordsNewPOI.value.lng = coord[1].split(')')[0];
+                        addPOIState.value = true;
+                        emit("showAddModal", coordsNewPOI);
+                    });
+            } else {
+                document.getElementById('map').style.cursor = ''
+                map.off('click');
+            }
+            eventEmitted = 1;
+        };
+
+        ////////////////////////// FUNZIONI PER LA GESTIONE DELLE HEATMAP //////////////////////////
+
+
 
         const logout = () => {
             var requestOptions = {
@@ -198,162 +331,9 @@ export default {
         }
 
         let eventEmitted = 0;
-
         // Variabili di stato per i toggle.
-        const infoShowPOIState = ref(false);
         const infoAddPOIState = ref(false);
-        const showSelectPOI = ref(false);
-
-        const switchShowPOI = () => {
-            // Cambio stato del toggle.
-            infoShowPOIState.value = !infoShowPOIState.value;
-            if (infoShowPOIState.value) {
-                // Impostazione del metodo POST e invio dei dati al server
-                let requestOptions = {
-                    method: 'GET',
-                    redirect: 'follow'
-                };
-
-                fetch(baseUri + "pois", requestOptions)
-                    .then(async response => {
-                        const data = await response.json();
-                        const dataFormatted = data.map((item) => {
-                            return poisFormat(item);
-                        })
-                        switch (response.status) {
-                            case 200:
-                                // Se la richiesta è andata a buon fine, vengono elaborati
-                                // i dati ricevuti dal server e viene emesso il segnale per
-                                // aggiornare la mappa.
-                                setPointOfInterest(dataFormatted);
-                                showSelectPOI.value = true;
-                                getCheckBoxElem()
-                                emit("switchShowPOI");
-                                break;
-                            case 400:
-                                console.log("Errore 400: " + data.message);
-                                // emit("login400");
-                                break;
-                            case 401:
-                                console.log("Errore 401: " + data.message);
-                                // emit("login401");
-                                break;
-                            case 404:
-                                console.log("Errore 404: " + data.message);
-                                // emit("login404");
-                                break;
-                            default:
-                                console.log("Errore: " + data.message);
-                                // emit("loginErrorGeneric");
-                                break;
-                        }
-                    })
-                    .catch(() => emit("loginErrorGeneric"));
-            } else {
-                // Se il toggle è stato disattivato, viene emesso il segnale per
-                // rimuovere i POI dalla mappa.
-                showSelectPOI.value = false;
-                emit("switchShowPOI");
-            }
-            eventEmitted = 1;
-        };
-
-        let selectedCboxesId = [];
-
-        async function checkEvent(event, idCheckBox) {
-            if (event.target.checked) {
-                selectedCboxesId.push(idCheckBox);
-                emit("addCategory", idCheckBox);
-            } else {
-                selectedCboxesId = selectedCboxesId.filter((item) => item !== idCheckBox);
-                emit("removeCategory", idCheckBox);
-            }
-        }
-
-        async function getCheckBoxElem() {
-            await nextTick();
-            // Get all selected options
-            const checkboxes = document.getElementsByName("category");
-            const selectedCboxes = Array.prototype.slice.call(checkboxes).filter(ch => ch.checked == true);
-            // Get only the id 
-            selectedCboxesId = selectedCboxes.map(ch => ch.id);
-        }
-
-        const infoShowUser = ref(false);
-        const switchShowUser = () => {
-            infoShowUser.value = !infoShowUser.value;
-            if (infoShowUser.value) {
-                // Impostazione dell'header della richiesta di modifica.
-                const myHeaders = new Headers();
-                myHeaders.append('X-API-KEY', getToken());
-                // Impostazione del metodo POST e invio dei dati al server
-                let requestOptions = {
-                    method: 'GET',
-                    headers: myHeaders,
-                };
-
-                fetch(baseUri + "admin/getRequestLocations", requestOptions)
-                    .then(async response => {
-                        const data = await response.json();
-                        const dataFormatted = data.map((item) => {
-                            return userFormat(item);
-                        })
-                        switch (response.status) {
-                            case 200:
-                                // Se la richiesta è andata a buon fine, vengono elaborati
-                                // i dati ricevuti dal server e viene emesso il segnale per
-                                // aggiornare la mappa.
-                                setUserLocation(dataFormatted);
-                                emit("switchShowUser");
-                                break;
-                            case 400:
-                                console.log("Errore 400: " + data.message);
-                                // emit("login400");
-                                break;
-                            case 401:
-                                console.log("Errore 401: " + data.message);
-                                // emit("login401");
-                                break;
-                            case 404:
-                                console.log("Errore 404: " + data.message);
-                                // emit("login404");
-                                break;
-                            default:
-                                console.log("Errore: " + data.message);
-                                // emit("loginErrorGeneric");
-                                break;
-                        }
-                    })
-                    .catch(() => emit("loginErrorGeneric"));
-            } else {
-                // Se il toggle è stato disattivato, viene emesso il segnale per
-                // rimuovere i POI dalla mappa.
-                emit("switchShowUser");
-            }
-            eventEmitted = 1;
-        };
-
-        const coordsNewPOI = ref({ lat: null, lng: null });
-        const addPOIState = ref(false);
-
-        const switchAddPOI = () => {
-            infoAddPOIState.value = !infoAddPOIState.value;
-            if (infoAddPOIState.value) {
-                document.getElementById('map').style.cursor = 'crosshair'
-                map.on('click',
-                    function (event) {
-                        var coord = event.latlng.toString().split(',');
-                        coordsNewPOI.value.lat = coord[0].split('(')[1];
-                        coordsNewPOI.value.lng = coord[1].split(')')[0];
-                        addPOIState.value = true;
-                        emit("showAddPOIModal", coordsNewPOI);
-                    });
-            } else {
-                document.getElementById('map').style.cursor = ''
-                map.off('click');
-            }
-            eventEmitted = 1;
-        };
+        
 
         const infoHeatMapState = ref(false);
         const showSelectHeatMap = ref(false);
@@ -393,30 +373,29 @@ export default {
 
         const infoClusteringMapState = ref(false);
 
-        const switchClustering = () => {
+        const showClusterModal = () => {
             infoClusteringMapState.value = !infoClusteringMapState.value;
-            emit("switchClustering");
+            emit("showClusterModal");
             eventEmitted = 1;
         };
 
         return {
             username,
             coordsNewPOI,
-            infoShowPOIState,
-            infoShowUser,
+            showPoI,
             infoHeatMapState,
             infoAddPOIState,
             infoClusteringMapState,
             showSelectHeatMap,
-            showSelectPOI,
+            showSelectorPoi,
             logout,
             selectItem,
-            switchShowUser,
-            switchShowPOI,
+            getInfoLocationUser,
+            getInfoPoIData,
             switchAddPOI,
             switchHeatMap,
-            switchClustering,
-            checkEvent
+            showClusterModal,
+            selectorPushPop
         };
     },
 };

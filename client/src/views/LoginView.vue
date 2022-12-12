@@ -6,22 +6,19 @@
             Il messaggio rimane visibile fino a quando l'utente non clicca sul pulsante
             che richiama l'evento di chiusura (closeError).
         -->
-        <ErrorModal 
-            v-if="boolError" 
-            @closeError="closeError" 
-            :infoErrorTitle="infoErrorTitle"
-            :infoErrorMsg="infoErrorMsg" 
+        <errorModal 
+            v-if="errorVisible" 
+            @closeErrorModal="closeErrorModal" 
+            :titleErrorModal="titleErrorModal"
+            :messageErrorModal="messageErrorModal" 
         />
         <!-- 
             Richiamo alla componente "LoginModal".
                 -   Gestione del login dall'utente all'applicazione.
         -->
-        <LoginModal 
+        <loginModal 
             @loginSuccess="loginSuccess" 
-            @login400="login400" 
-            @login401="login401"
-            @login404="login404" 
-            @loginErrorGeneric="loginErrorGeneric" 
+            @showError="showError"
         />
         <!-- 
             Definizione delle caratteristiche della componente grafica utilizzata 
@@ -39,14 +36,14 @@ import router from '@/router'
 // Import libreria di leaflet.
 import leaflet from "leaflet";
 // Import componenti richiamate nel blocco <template>.
-import LoginModal from "@/components/loginModal/LoginModal.vue";
-import ErrorModal from "@/components/errorModal/genericErrorModal/ErrorModal.vue";
+import loginModal from "@/components/formModal/loginModal.vue";
+import errorModal from "@/components/errorModal/errorModal.vue";
 
 export default {
     name: 'LoginView',
     components: {
-        LoginModal,
-        ErrorModal
+        loginModal,
+        errorModal
     },
     emits: [],
     setup() {
@@ -76,49 +73,32 @@ export default {
             router.push({ name: "home" });
         };
 
-        // Dichiarazione variabili di visualizzazione della finestra di errore.
-        const boolError = ref(false);
-        const infoErrorTitle = ref("Titolo del messaggio di errore.");
-        const infoErrorMsg = ref("Testo del messaggio di errore.");
-
-        const login400 = () => {
-            infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
-            infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
-            boolError.value = true;
+        //////////////////////////// ERROR /////////////////////////////
+        
+        // Dati per la visualizzazione del messaggio di errore.
+        const titleErrorModal = ref(null);
+        const messageErrorModal = ref(null);
+        const errorVisible = ref(false);
+        
+        // Funzione per la visualizzazione del messaggio di errore.
+        const showError = (titleError, messageError) => {
+            titleErrorModal.value = titleError;
+            messageErrorModal.value = messageError;
+            errorVisible.value = true;
         };
 
-        const login401 = () => {
-            infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
-            infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
-            boolError.value = true;
-        };
-
-        const login404 = () => {
-            infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
-            infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
-            boolError.value = true;
-        };
-
-        const loginErrorGeneric = () => {
-            infoErrorTitle.value = "Errore nella pagina di visualizzazione del login.";
-            infoErrorMsg.value = "Oh rabbia! Christopher Robin deve avere combinato qualcosa di grave per non far funzionare questa pagina.";
-            boolError.value = true;
-        };
-
-        const closeError = () => {
-            boolError.value = false;
+        // Funzione per la chiusura del messaggio di errore.
+        const closeErrorModal = () => {
+            errorVisible.value = false;
         };
 
         return {
-            boolError,
-            infoErrorTitle,
-            infoErrorMsg,
             loginSuccess,
-            login400,
-            login401,
-            login404,
-            loginErrorGeneric,
-            closeError
+            showError,
+            closeErrorModal,
+            titleErrorModal,
+            messageErrorModal,
+            errorVisible
         };
     }
 }

@@ -12,6 +12,7 @@
     "core-js": "^3.8.3",
     "flowbite": "^1.5.4",
     "flowbite-vue": "^0.0.7",
+    "google-palette": "^1.1.0",
     "leaflet": "^1.8.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",

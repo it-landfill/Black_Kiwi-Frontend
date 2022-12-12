@@ -1,8 +1,11 @@
 import leaflet from "leaflet";
+import palette from "google-palette";
 
 export let map;
+// Lista contenente i dati geojson formati dei PoI.
 export let pointOfInterest;
 export let userLocation;
+export let clusterLocation;
 export let layerSelected;
 
 export function setMap(newMap) {
@@ -13,16 +16,16 @@ export function getMap() {
   return map;
 }
 
-export function setPointOfInterest(newPointOfInterest) {
+export function setPoIData(newPointOfInterest) {
   pointOfInterest = newPointOfInterest;
-}
-
-export function getPointOfInterest() {
-  return pointOfInterest;
 }
 
 export function setUserLocation(newUserLocation) {
   userLocation = newUserLocation;
+}
+
+export function setClusterData(newClusterLocation) {
+  clusterLocation = newClusterLocation;
 }
 
 export function getUserLocation() {
@@ -36,9 +39,6 @@ export function setLayerSelected(newLayerSelected) {
 export function getLayerSelected() {
   return layerSelected;
 }
-
-
-
 
 // Icon for the marker
 
@@ -140,6 +140,27 @@ export var geojsonMarkerOptionsUserRed = leaflet.icon({
   shadowSize: [68, 95],
   shadowAnchor: [22, 94],
 });
+
+// function getColorCluster(actualCluster, maxCluster) {
+// value from 0 to 1
+// var hue = ((1 - actualCluster / maxCluster) * 120).toString(10);
+// return ["hsl(", hue, ",100%,50%)"].join("");
+// }
+
+export function getColorPaletteGoogleCluster(actualCluster, maxCluster) {
+  var paletteGoogle = palette("mpn65", maxCluster);
+  return "#" + paletteGoogle[actualCluster];
+}
+
+export function geojsonMarkerOptionsCluster(actualCluster, maxCluster){
+  return {
+    radius: 15,
+    stroke: false,
+    color: getColorPaletteGoogleCluster(actualCluster, maxCluster),
+    fillOpacity: 0.8,
+  }
+}
+
 
 // Popup for the marker
 

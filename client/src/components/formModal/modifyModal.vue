@@ -111,13 +111,17 @@ export default {
     ],
     emits: [
         "closeModifyPOIModal",
-        "closePostModifyPOIModal"
+        "modifyPoIData"
     ],
     setup(props, { emit }) {
 
         // La funzione "onMounted" è una funzione di vue che viene richiamata automaticamente
         // una volta che il componente è stato caricata.
         onMounted(() => {
+            
+            // TODO: Potenziale bug quando la connessione è poco prestante (il tag non viene 
+            // segnato correttamente in alcune categorie dopo una modfica).
+
             // Impostazione dei dati relativi al PoI selezionato.
             document.getElementById("name").setAttribute("value", props.nodeInfo.name);
             document.getElementById("rank").setAttribute("value", props.nodeInfo.rank);
@@ -139,49 +143,47 @@ export default {
             formData.coord = new Object();
             formData.coord.latitude = parseFloat(props.nodeInfo.latitude);
             formData.coord.longitude = parseFloat(props.nodeInfo.longitude);
-            let addPOIJSON = JSON.stringify(formData);
+            let dataJSON = JSON.stringify(formData);
 
             // Impostazione del metodo POST e invio dei dati al server
             var requestOptions = {
                 method: "POST",
                 headers: myHeaders,
-                body: addPOIJSON
+                body: dataJSON
             };
+            let titleError;
+            let messageError;
             fetch(baseUri + "admin/editPOI", requestOptions)
                 .then((response) => {
                     switch (response.status) {
                         case 200:
                             // Se la richiesta di modifica termina con successo vengono aggiornati 
                             // in locale i dati relativi al PoI modificato.
-                            emit(
-                                "closePostModifyPOIModal",
-                                formData.name,
-                                formData.rank,
-                                formData.category
-                            );
+                            emit("modifyPoIData", formData.name, formData.rank, formData.category);
                             break;
                         case 400:
-                            emit("closeModifyPOIModal");
-                            // emit("login400");
+                            titleError = "Errore 400 - Richiesta errata";
+                            messageError = "La richiesta non è stata eseguita a causa di un errore sintattico.";
+                            emit("showError", titleError, messageError);
                             break;
                         case 401:
-                            emit("closeModifyPOIModal");
-                            // emit("login401");
+                            titleError = "Errore 401 - Non autorizzato";
+                            messageError = "Non sei autorizzato ad accedere a questa pagina.";
+                            emit("showError", titleError, messageError); 
                             break;
-                        case 404:
-                            emit("closeModifyPOIModal");
-                            // emit("login404");
+                        case 500:
+                            titleError = "Errore 500 - Server Error";
+                            messageError = "Si è verificato un errore interno al server. Riprovare più tardi.";
+                            emit("showError", titleError, messageError);
                             break;
                         default:
-                            emit("closeModifyPOIModal");
-                            emit("loginErrorGeneric");
+                            titleError = "Errore sconosciuto";
+                            messageError = "Si è verificato un errore sconosciuto. Riprovare più tardi.";
+                            emit("showError", titleError, messageError);
                             break;
                     }
                 })
-                .catch(() => {
-                    emit("closeModifyPOIModal");
-                    emit("loginErrorGeneric")
-                });
+                .catch((error) => console.log("Log errore: ", error));
         }
 
         return {

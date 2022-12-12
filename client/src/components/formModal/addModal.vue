@@ -10,7 +10,7 @@
                             <h3 class="mt-6 pb-3 text-center text-2xl text-slate-900 font-medium" id="modal-title">
                                 Aggiunta di un punto di interesse </h3>
                             <div class="mt-2">
-                                <form @submit.prevent="addPost">
+                                <form @submit.prevent="postAddPoIData">
                                     <div class=" grid grid-cols-none gap-6">
                                         <div class="flex flex-row gap-6 col-span-6 sm:col-span-4">
                                             <div class="col-span-6 sm:col-span-4">
@@ -92,7 +92,7 @@
                             px-4 py-2 bg-slate-300 text-slate-900 text-base font-medium hover:bg-slate-900
                             hover:text-white sm:ml-3 sm:w-auto
                             sm:text-sm">Inviare</button>
-                                        <button @click="$emit('closeAddPOIModal')" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
+                                        <button @click="$emit('closeAddModal')" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
                             px-4 py-2 bg-slate-300 text-slate-900 text-base font-medium hover:bg-slate-900
                             hover:text-white sm:ml-3 sm:w-auto
                             sm:text-sm">Annullare</button>
@@ -108,83 +108,86 @@
 </template>
 
 <script>
-
+// Import funzioni di impostazione per POST e GET al server.
 import {
     baseUri,
     getToken,
 } from "@/components/js/dataConnection.js";
 
 export default {
-    name: 'AddPOIModal',
-    props: ['coordsNewPOI'],
+    name: 'addModal',
+    props: [
+        'coordsNewPOI'
+    ],
+    components: {},
     emits: [
-        "addPost",
-        "add400",
-        "add401",
-        "add404",
-        "addErrorGeneric",
-        "closeAddPOIModal",
-        "closeAddPOIModalSuccess"
+        "addPoI",
+        "closeAddModal",
+        "showError"
     ],
     setup(props, { emit }) {
 
-        const addPost = () => {
-            console.log("Premuto il bottone di aggiunta di un nuovo POI");
-            console.log(getToken());
+        // Funzione per ottenere i dati relativi al nuovo PoI ed inviarli.
+        const postAddPoIData = () => {
+            // Impostazione dell'header della richiesta.
             const myHeaders = new Headers();
             myHeaders.append('X-API-KEY', getToken());
-            console.log(myHeaders.get('X-API-KEY'));
-            var addPOIJSON = new Object();
-            addPOIJSON.name = document.getElementById("name").value;
+            // Acquisizione dei dati relativi al PoI da aggiungere.
+            var formData = new Object();
+            formData.name = document.getElementById("name").value;
             if (document.getElementById("rank").value != "") {
-                addPOIJSON.rank = parseFloat(document.getElementById("rank").value);
+                formData.rank = parseFloat(document.getElementById("rank").value);
             }
-            addPOIJSON.category = document.querySelector('input[name="categoryAdd"]:checked').id;
-            addPOIJSON.coord = new Object();
-            addPOIJSON.coord.latitude = parseFloat(props.coordsNewPOI.lat);
-            addPOIJSON.coord.longitude = parseFloat(props.coordsNewPOI.lng);
-            let dataJSON = JSON.stringify(addPOIJSON);
+            formData.category = document.querySelector('input[name="categoryAdd"]:checked').id;
+            formData.coord = new Object();
+            formData.coord.latitude = parseFloat(props.coordsNewPOI.lat);
+            formData.coord.longitude = parseFloat(props.coordsNewPOI.lng);
+            let dataJSON = JSON.stringify(formData);
+
+            // Impostazione del metodo POST e invio dei dati al server
             var requestOptions = {
                 method: "POST",
                 headers: myHeaders,
                 body: dataJSON
             };
-
+            let titleError;
+            let messageError;
             fetch(baseUri + "admin/newPOI", requestOptions)
                 .then((response) => {
-                    console.log(response);
                     switch (response.status) {
                         case 200:
-                            console.log("POI aggiunto con successo");
-                            addPOIJSON.id = response.headers.get("id");
-                            emit("closeAddPOIModalSuccess", addPOIJSON);
+                            // Testare se lo gettiamo effettivamente l'id
+                            formData.id = response.headers.get("id");
+                            emit("addPoI", formData);
                             break;
                         case 400:
-                            console.log("Bad request.");
-                            // emit("login400");
+                            titleError = "Errore 400 - Richiesta errata";
+                            messageError = "La richiesta non è stata eseguita a causa di un errore sintattico.";
+                            emit("showError", titleError, messageError);
                             break;
                         case 401:
-                            console.log("Authorization information is missing or invalid.");
-                            // emit("login401");
+                            titleError = "Errore 401 - Non autorizzato";
+                            messageError = "Non sei autorizzato ad accedere a questa pagina.";
+                            emit("showError", titleError, messageError); 
                             break;
-                        case 404:
-                            console.log("A user with the specified ID was not found.");
-                            // emit("login404");
+                        case 500:
+                            titleError = "Errore 500 - Server Error";
+                            messageError = "Si è verificato un errore interno al server. Riprovare più tardi.";
+                            emit("showError", titleError, messageError);
                             break;
                         default:
-                            console.log("Errore sconosciuto.");
+                            titleError = "Errore sconosciuto";
+                            messageError = "Si è verificato un errore sconosciuto. Riprovare più tardi.";
+                            emit("showError", titleError, messageError);
                             break;
                     }
                 })
                 .catch((error) => console.log("error", error));
-
         };
 
-        const closeAddPOIModal = () => {
-            emit("closeAddPOIModal");
+        return { 
+            postAddPoIData 
         };
-
-        return { addPost, closeAddPOIModal };
     },
 };
 </script>

@@ -49,13 +49,11 @@ import {
 
 export default {
 	name: 'LoginModal',
+	props: [],
 	components: {},
 	emits: [
 		"loginSuccess",
-		"login400",
-		"login401",
-		"login404",
-		"loginErrorGeneric"
+		"showError"
 	],
 	setup(_, { emit }) {
 
@@ -70,6 +68,8 @@ export default {
 				method: "POST",
 				body: formdata,
 			};
+			let titleError;
+            let messageError;
 			fetch(baseUri + "login", requestOptions)
 				.then(async response => {
 					const data = await response.json();
@@ -82,20 +82,28 @@ export default {
 							emit("loginSuccess");
 							break;
 						case 400:
-							emit("login400");
-							break;
-						case 401:
-							emit("login401");
-							break;
-						case 404:
-							emit("login404");
-							break;
-						default:
-							emit("loginErrorGeneric");
-							break;
+                            titleError = "Errore 400 - Richiesta errata";
+                            messageError = "La richiesta non è stata eseguita a causa di un errore sintattico.";
+                            emit("showError", titleError, messageError);
+                            break;
+                        case 401:
+                            titleError = "Errore 401 - Non autorizzato";
+                            messageError = "Non sei autorizzato ad accedere a questa pagina.";
+                            emit("showError", titleError, messageError); 
+                            break;
+                        case 500:
+                            titleError = "Errore 500 - Server Error";
+                            messageError = "Si è verificato un errore interno al server. Riprovare più tardi.";
+                            emit("showError", titleError, messageError);
+                            break;
+                        default:
+                            titleError = "Errore sconosciuto";
+                            messageError = "Si è verificato un errore sconosciuto. Riprovare più tardi.";
+                            emit("showError", titleError, messageError);
+                            break;
 					}
 				})
-				.catch(() => emit("loginErrorGeneric"));
+				.catch((error) => console.log("Log errore: ", error));
 		};
 
 		return { 

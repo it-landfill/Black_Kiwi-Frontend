@@ -29,14 +29,15 @@
             </div>
 
             <div class="sm:flex sm:flex-row-reverse sm:px-4 text-sm pt-4 pb-2 gap-2">
-                <button @click="removePOI" class=" w-full inline-flex justify-center rounded-md border border-transparent
+                <button id="deleteButtonModal" @click="removePOI" class=" w-full inline-flex justify-center rounded-md border border-transparent
                             py-2 px-4 text-slate-500  text-base font-medium 
                             hover:text-slate-900 sm:ml-3 sm:w-auto
+                            disabled:text-slate-400 disabled:cursor-not-allowed
                             sm:text-sm">Eliminare</button>
-                <button @click="modifyPOI" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
+                <button id="modifyButtonModal" @click="$emit('showModifyModal')" class=" w-full inline-flex justify-center rounded-md border border-transparent shadow-sm
                              py-2 bg-slate-200 text-slate-900 text-base font-medium hover:bg-slate-900
                             hover:text-white 
-                            sm:text-sm">Modificare</button>
+                            sm:text-sm disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed">Modificare</button>
             </div>
 
         </div>
@@ -44,62 +45,78 @@
 </template>
 
 <script>
-
+// Import della funzioni "onMounted" di vue in "MapFeatures"
+import { onMounted } from "vue";
+// Import funzioni di impostazione per POST e GET al server.
 import {
     baseUri,
     getToken
 } from "@/components/js/dataConnection.js";
 
 export default {
-    // Nominativo del component
-    name: 'ErrorModal',
-    props: ["nodeInfo"],
-    emits: ["modifyPOI", "removePOI"],
+    name: 'infoComponent',
+    props: [
+        "nodeInfo"
+    ],
+    emits: [
+        "showModifyModal", 
+        "removePOI"
+    ],
     setup(props, { emit }) {
 
-        const modifyPOI = () => {
-            console.log("infoBlockComponent - modifyPOI clicked");
-            emit("modifyPOI");
-        };
+        // Funzione richiamata ogni volta che visualizzato il componente.
+        onMounted(() => {
+            document.getElementById("modifyButtonModal").disabled = true;
+            document.getElementById("deleteButtonModal").disabled = true;
+        });
 
+        // Funzione per rimuovere il POI selezionato.
         const removePOI = () => {
-            console.log("infoBlockComponent - removePOI clicked");
-            // Impostazione del token per l'autenticazione
+            // Impostazione dell'header della richiesta.
             const myHeaders = new Headers();
             myHeaders.append('X-API-KEY', getToken());
+
             // Impostazione del metodo DELETE e invio dei dati al server
             var requestOptions = {
                 method: "DELETE",
                 headers: myHeaders,
             };
+            let titleError;
+            let messageError;
             fetch(baseUri + "admin/deletePOI?poiID=" + props.nodeInfo.id, requestOptions)
                 .then((response) => {
                     switch (response.status) {
                         case 200:
-                            console.log("infoBlockComponent - removePOI - 200");
                             emit("removePOI", props.nodeInfo.id);
                             break;
                         case 400:
-                            console.log("Bad request.");
-                            // emit("login400");
+                            titleError = "Errore 400 - Richiesta errata";
+                            messageError = "La richiesta non è stata eseguita a causa di un errore sintattico.";
+                            emit("showError", titleError, messageError);
                             break;
                         case 401:
-                            console.log("Authorization information is missing or invalid.");
-                            // emit("login401");
+                            titleError = "Errore 401 - Non autorizzato";
+                            messageError = "Non sei autorizzato ad accedere a questa pagina.";
+                            emit("showError", titleError, messageError); 
                             break;
-                        case 404:
-                            console.log("A user with the specified ID was not found.");
-                            // emit("login404");
+                        case 500:
+                            titleError = "Errore 500 - Server Error";
+                            messageError = "Si è verificato un errore interno al server. Riprovare più tardi.";
+                            emit("showError", titleError, messageError);
                             break;
                         default:
-                            console.log("Errore sconosciuto.");
+                            titleError = "Errore sconosciuto";
+                            messageError = "Si è verificato un errore sconosciuto. Riprovare più tardi.";
+                            emit("showError", titleError, messageError);
                             break;
                     }
                 })
-                .catch((error) => console.log("error", error));
+                .catch((error) => console.log("Log errore: ", error));
         };
 
-        return { modifyPOI, removePOI };
+        return {
+            removePOI
+        };
     },
 };
 </script>
